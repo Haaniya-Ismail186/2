@@ -2,6 +2,7 @@
 let scene, camera, renderer, clock, player, playerMixer;
 let enemies = [], isGameOver = false, score = 0, ammo = 100, timeLeft = 60;
 let moveFwd = false, targetQuat = new THREE.Quaternion();
+let gameTimerInterval; // Timer stability ke liye
 
 const shootSound = document.getElementById('shoot-audio');
 const startBtn = document.getElementById('start-btn');
@@ -10,22 +11,25 @@ const startOverlay = document.getElementById('start-overlay');
 const MODEL_URL = 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/models/gltf/Soldier.glb';
 const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-// --- 2. Mobile Audio & Vibration Fix ---
-function triggerShootEffects() {
-    // 1. Audio Playback
-    if (shootSound) {
-        shootSound.pause(); 
-        shootSound.currentTime = 0;
-        let playPromise = shootSound.play();
-        if (playPromise !== undefined) {
-            playPromise.catch(e => console.log("Browser blocked sound"));
-        }
-    }
+// --- 2. Timer Logic ---
+function startTimer() {
+    const timerEl = document.getElementById('timer');
+    if(gameTimerInterval) clearInterval(gameTimerInterval);
 
-    // 2. Vibration (Mobile Only) - Agar sound nahi aayi to vibrate karega
-    if (isMobile && window.navigator.vibrate) {
-        window.navigator.vibrate(50); // 50ms vibration
-    }
+    gameTimerInterval = setInterval(() => {
+        if (isGameOver) { clearInterval(gameTimerInterval); return; }
+        
+        timeLeft--;
+        let mins = Math.floor(timeLeft / 60);
+        let secs = timeLeft % 60;
+        
+        if (timerEl) timerEl.innerText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        
+        if (timeLeft <= 0) { 
+            clearInterval(gameTimerInterval); 
+            finishGame(false); 
+        }
+    }, 1000);
 }
 
 // --- 3. Init Game ---
@@ -45,22 +49,34 @@ function initGame() {
 
     const loader = new THREE.GLTFLoader();
 
-    // Load Enemies
+    // Load Victims (Enemies)
     for (let i = 0; i < 10; i++) {
         loader.load(MODEL_URL, (gltf) => {
             const enemy = gltf.scene;
             enemy.scale.set(1.8, 1.8, 1.8);
             enemy.position.set((Math.random() - 0.5) * 40, 0, -(Math.random() * 30 + 10));
+            
             enemy.traverse(child => {
                 if (child.isMesh) {
                     child.material = child.material.clone();
                     child.material.color.set(0xff0000); 
                 }
             });
+
             scene.add(enemy);
+            
             const mixer = new THREE.AnimationMixer(enemy);
-            if (gltf.animations.length > 0) mixer.clipAction(gltf.animations[0]).play();
-            enemies.push({ mesh: enemy, alive: true, mixer: mixer });
+            if (gltf.animations.length > 0) {
+                mixer.clipAction(gltf.animations[0]).play();
+            }
+            
+            // 3D move ke liye offset aur base position save ki
+            enemies.push({ 
+                mesh: enemy, 
+                alive: true, 
+                mixer: mixer, 
+                offset: Math.random() * Math.PI * 2 
+            });
         });
     }
 
@@ -70,29 +86,45 @@ function initGame() {
         player.scale.set(1.8, 1.8, 1.8);
         scene.add(player);
         playerMixer = new THREE.AnimationMixer(player);
-        if (gltf.animations.length > 1) playerMixer.clipAction(gltf.animations[1]).play(); 
+        if (gltf.animations.length > 1) {
+            playerMixer.clipAction(gltf.animations[1]).play(); 
+        }
     });
 
     setupControls();
+    startTimer();
     renderer.setAnimationLoop(animate);
 }
 
 // --- 4. Animation Loop ---
 function animate() {
     const dt = clock.getDelta();
-    if (player) {
-        // Gyro Smoothing
-        player.quaternion.slerp(targetQuat, 0.1); 
+    const time = clock.getElapsedTime();
+    
+    if (player && !isGameOver) {
+        player.quaternion.slerp(targetQuat, 0.1);
         if (playerMixer) playerMixer.update(dt);
+        
         if (moveFwd) {
             const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(player.quaternion);
-            player.position.add(dir.multiplyScalar(0.18)); 
+            player.position.add(dir.multiplyScalar(0.15));
+            player.position.y = 0;
         }
+        
         const camPos = new THREE.Vector3(0, 4.5, 9).applyQuaternion(player.quaternion);
         camera.position.lerp(player.position.clone().add(camPos), 0.1);
         camera.lookAt(player.position.x, player.position.y + 2, player.position.z - 5);
     }
-    enemies.forEach(e => { if (e.alive && e.mixer) e.mixer.update(dt); });
+
+    // Victims 3D Movement (Halka sa upar-neeche bobbing)
+    for (let i = 0; i < enemies.length; i++) {
+        if (enemies[i].alive) {
+            if (enemies[i].mixer) enemies[i].mixer.update(dt);
+            // Victim apni jagah khade reh kar move karega
+            enemies[i].mesh.position.y = Math.sin(time * 2 + enemies[i].offset) * 0.25;
+        }
+    }
+
     renderer.render(scene, camera);
 }
 
@@ -100,10 +132,9 @@ function animate() {
 function setupControls() {
     if (isMobile) {
         window.addEventListener('deviceorientation', (e) => {
-            if (isGameOver || !player) return;
-            // Landscape optimization
-            let angle = (window.innerWidth > window.innerHeight) ? e.beta : e.gamma;
-            let rotationY = -THREE.MathUtils.degToRad(angle * 3.0); 
+            if (isGameOver) return;
+            let rotY = (window.innerWidth > window.innerHeight) ? e.beta : e.gamma;
+            let rotationY = -(rotY) * (Math.PI / 180) * 2.5;
             targetQuat.setFromEuler(new THREE.Euler(0, rotationY, 0, 'YXZ'));
         });
 
@@ -116,8 +147,12 @@ function setupControls() {
         moveBtn.addEventListener('touchstart', (e) => { e.preventDefault(); moveFwd = true; });
         moveBtn.addEventListener('touchend', (e) => { e.preventDefault(); moveFwd = false; });
     } else {
+        window.addEventListener('mousemove', (e) => {
+            if (isGameOver || !player) return;
+            let rotY = -(e.clientX / window.innerWidth - 0.5) * Math.PI * 1.5;
+            targetQuat.setFromEuler(new THREE.Euler(0, rotY, 0, 'YXZ'));
+        });
         window.addEventListener('mousedown', shoot);
-        // Laptop keys
         window.addEventListener('keydown', (e) => { if(e.code === 'ArrowUp') moveFwd = true; });
         window.addEventListener('keyup', (e) => { if(e.code === 'ArrowUp') moveFwd = false; });
     }
@@ -125,18 +160,27 @@ function setupControls() {
 
 function shoot() {
     if (!player || isGameOver || ammo <= 0) return;
+
+    // Mobile Audio Fix
+    if (shootSound) {
+        shootSound.currentTime = 0;
+        shootSound.play().catch(e => {});
+    }
     
-    // Shoot Effects (Sound + Vibrate)
-    triggerShootEffects();
+    // Vibration for feedback
+    if (isMobile && navigator.vibrate) navigator.vibrate(40);
 
     ammo--;
     document.getElementById('ammo').innerText = ammo;
 
     const raycaster = new THREE.Raycaster();
     const shootDir = new THREE.Vector3(0, 0, -1).applyQuaternion(player.quaternion);
-    raycaster.set(player.position.clone().add(new THREE.Vector3(0, 1.5, 0)), shootDir);
+    let rayOrigin = player.position.clone().add(new THREE.Vector3(0, 1.5, 0));
+    raycaster.set(rayOrigin, shootDir);
 
-    const hits = raycaster.intersectObjects(enemies.filter(e => e.alive).map(e => e.mesh), true);
+    const targetMeshes = enemies.filter(e => e.alive).map(e => e.mesh);
+    const hits = raycaster.intersectObjects(targetMeshes, true);
+
     if (hits.length > 0) {
         let hitObject = hits[0].object;
         let enemyRoot = enemies.find(e => {
@@ -144,36 +188,42 @@ function shoot() {
             e.mesh.traverse(child => { if (child === hitObject) found = true; });
             return found;
         });
+
         if (enemyRoot && enemyRoot.alive) {
             enemyRoot.alive = false;
             scene.remove(enemyRoot.mesh);
             score++;
             document.getElementById('enemy-count').innerText = 10 - score;
-            if (score >= 10) finishGame(win = true);
+            if (score >= 10) finishGame(true);
         }
     }
 }
 
 function finishGame(win) {
     isGameOver = true;
+    clearInterval(gameTimerInterval);
     document.getElementById('game-over-screen').style.display = 'flex';
     document.getElementById('result-title').innerText = win ? "MISSION SUCCESS" : "MISSION FAILED";
 }
 
-// --- 6. Start Action ---
+// --- 6. Start Button (Audio & Fullscreen Unlock) ---
 if (startBtn) {
     startBtn.onclick = () => {
         startOverlay.style.display = 'none';
         
-        // Fullscreen for mobile
+        // Full Screen
         const el = document.documentElement;
         if (el.requestFullscreen) el.requestFullscreen();
-        
-        // Audio Unlock (Crucial!)
+        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+
+        // Unlock Mobile Audio
         if (shootSound) {
-            shootSound.play().then(() => { shootSound.pause(); }).catch(() => {});
+            shootSound.play().then(() => {
+                shootSound.pause();
+                shootSound.currentTime = 0;
+            }).catch(err => {});
         }
-        
+
         initGame();
     };
 }
