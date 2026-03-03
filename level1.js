@@ -3,43 +3,23 @@ let scene, camera, renderer, clock, player, playerMixer;
 let enemies = [], isGameOver = false, score = 0, ammo = 100, timeLeft = 60;
 let moveFwd = false, targetQuat = new THREE.Quaternion();
 
-// NEW: Web Audio API for Mobile
-let audioCtx = null;
-let shootBuffer = null;
-
+// HTML Elements
+const shootSound = document.getElementById('shoot-audio');
 const startBtn = document.getElementById('start-btn');
 const startOverlay = document.getElementById('start-overlay');
-const shootAudioElement = document.getElementById('shoot-audio');
 
 const MODEL_URL = 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/models/gltf/Soldier.glb';
 const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-// --- 2. NEW: Mobile Audio Force-Loader ---
-async function setupMobileAudio() {
-    if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    // Agar sound file load nahi hui toh load karein
-    if (!shootBuffer && shootAudioElement) {
-        try {
-            const response = await fetch(shootAudioElement.src);
-            const arrayBuffer = await response.arrayBuffer();
-            shootBuffer = await audioCtx.decodeAudioData(arrayBuffer);
-        } catch (e) {
-            console.error("Audio loading failed", e);
-        }
-    }
-    if (audioCtx.state === 'suspended') {
-        await audioCtx.resume();
-    }
-}
-
-function playShootSound() {
-    if (audioCtx && shootBuffer) {
-        const source = audioCtx.createBufferSource();
-        source.buffer = shootBuffer;
-        source.connect(audioCtx.destination);
-        source.start(0);
+// --- 2. Mobile Audio Fix (The 'Poke' Method) ---
+function unlockAudio() {
+    if (shootSound) {
+        shootSound.muted = true; // Pehle mute karke play karenge
+        shootSound.play().then(() => {
+            shootSound.pause();
+            shootSound.muted = false; // Phir unmute kar denge
+            shootSound.currentTime = 0;
+        }).catch(e => console.log("Audio unlock failed"));
     }
 }
 
@@ -131,13 +111,14 @@ function setupControls() {
         window.addEventListener('deviceorientation', (e) => {
             if (isGameOver || !player) return;
             let angle = (window.innerWidth > window.innerHeight) ? e.beta : e.gamma;
-            let rotationY = -THREE.MathUtils.degToRad(angle * 3.5); // Faster Gyro
+            let rotationY = -THREE.MathUtils.degToRad(angle * 3.5); // Better Gyro
             targetQuat.setFromEuler(new THREE.Euler(0, rotationY, 0, 'YXZ'));
         });
 
-        document.getElementById('fire-btn').addEventListener('touchstart', (e) => {
+        const fireBtn = document.getElementById('fire-btn');
+        fireBtn.addEventListener('touchstart', (e) => {
             e.preventDefault();
-            if (audioCtx) audioCtx.resume(); // Ensure context stays awake
+            unlockAudio(); // Har shot par audio ko jagate rahenge
             shoot();
         });
 
@@ -159,8 +140,11 @@ function setupControls() {
 function shoot() {
     if (!player || isGameOver || ammo <= 0) return;
     
-    // NEW: Play sound via Buffer
-    playShootSound();
+    // Play Sound
+    if (shootSound) {
+        shootSound.currentTime = 0;
+        shootSound.play().catch(e => console.log("Still blocked"));
+    }
 
     ammo--;
     document.getElementById('ammo').innerText = ammo;
@@ -196,16 +180,15 @@ function finishGame(win) {
 
 // --- 7. Start Action ---
 if (startBtn) {
-    startBtn.onclick = async () => {
-        // Full screen
+    startBtn.onclick = () => {
+        unlockAudio(); // Pehla click audio context unlock kar deta hai
+        startOverlay.style.display = 'none';
+        
+        // Fullscreen Toggle
         const el = document.documentElement;
         if (el.requestFullscreen) el.requestFullscreen();
         else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
 
-        // Mobile Sound "Force Unlock"
-        await setupMobileAudio();
-        
-        startOverlay.style.display = 'none';
         initGame();
     };
 }
