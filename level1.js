@@ -2,7 +2,7 @@
 let scene, camera, renderer, clock, player, playerMixer;
 let enemies = [], isGameOver = false, score = 0, ammo = 100, timeLeft = 60;
 let moveFwd = false, targetQuat = new THREE.Quaternion();
-let gameTimerInterval; // Timer stability ke liye
+let gameTimerInterval;
 
 const shootSound = document.getElementById('shoot-audio');
 const startBtn = document.getElementById('start-btn');
@@ -49,7 +49,7 @@ function initGame() {
 
     const loader = new THREE.GLTFLoader();
 
-    // Load Victims (Enemies)
+    // Load Enemies
     for (let i = 0; i < 10; i++) {
         loader.load(MODEL_URL, (gltf) => {
             const enemy = gltf.scene;
@@ -70,7 +70,6 @@ function initGame() {
                 mixer.clipAction(gltf.animations[0]).play();
             }
             
-            // 3D move ke liye offset aur base position save ki
             enemies.push({ 
                 mesh: enemy, 
                 alive: true, 
@@ -116,11 +115,9 @@ function animate() {
         camera.lookAt(player.position.x, player.position.y + 2, player.position.z - 5);
     }
 
-    // Victims 3D Movement (Halka sa upar-neeche bobbing)
     for (let i = 0; i < enemies.length; i++) {
         if (enemies[i].alive) {
             if (enemies[i].mixer) enemies[i].mixer.update(dt);
-            // Victim apni jagah khade reh kar move karega
             enemies[i].mesh.position.y = Math.sin(time * 2 + enemies[i].offset) * 0.25;
         }
     }
@@ -158,16 +155,25 @@ function setupControls() {
     }
 }
 
+// ✅ UPDATED SHOOT FUNCTION (Mobile Sound Fixed)
 function shoot() {
     if (!player || isGameOver || ammo <= 0) return;
 
-    // Mobile Audio Fix
     if (shootSound) {
+        shootSound.pause();
         shootSound.currentTime = 0;
-        shootSound.play().catch(e => {});
+
+        const playPromise = shootSound.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(() => {
+                document.addEventListener('touchstart', function unlockAudio() {
+                    shootSound.play();
+                    document.removeEventListener('touchstart', unlockAudio);
+                });
+            });
+        }
     }
     
-    // Vibration for feedback
     if (isMobile && navigator.vibrate) navigator.vibrate(40);
 
     ammo--;
@@ -206,22 +212,21 @@ function finishGame(win) {
     document.getElementById('result-title').innerText = win ? "MISSION SUCCESS" : "MISSION FAILED";
 }
 
-// --- 6. Start Button (Audio & Fullscreen Unlock) ---
+// --- 6. Start Button ---
 if (startBtn) {
     startBtn.onclick = () => {
         startOverlay.style.display = 'none';
         
-        // Full Screen
         const el = document.documentElement;
         if (el.requestFullscreen) el.requestFullscreen();
         else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
 
-        // Unlock Mobile Audio
+        // 🔓 Stronger Mobile Audio Unlock
         if (shootSound) {
             shootSound.play().then(() => {
                 shootSound.pause();
                 shootSound.currentTime = 0;
-            }).catch(err => {});
+            }).catch(() => {});
         }
 
         initGame();
