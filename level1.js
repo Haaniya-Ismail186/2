@@ -10,6 +10,17 @@ const startOverlay = document.getElementById('start-overlay');
 const MODEL_URL = 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/models/gltf/Soldier.glb';
 const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
+// --- Audio Unlock Flag for Mobile ---
+let audioUnlocked = false;
+function unlockAudio() {
+    if (audioUnlocked || !shootSound) return;
+    shootSound.play().then(() => {
+        shootSound.pause();
+        shootSound.currentTime = 0;
+        audioUnlocked = true;
+    }).catch(() => {});
+}
+
 // --- 2. Timer Logic ---
 function startTimer() {
     const timerEl = document.getElementById('timer');
@@ -120,6 +131,7 @@ function setupControls() {
 
         document.getElementById('fire-btn').addEventListener('touchstart', (e) => {
             e.preventDefault();
+            unlockAudio(); // unlock first touch
             shoot();
         });
 
@@ -132,7 +144,10 @@ function setupControls() {
             let rotY = -(e.clientX / window.innerWidth - 0.5) * Math.PI * 1.5;
             targetQuat.setFromEuler(new THREE.Euler(0, rotY, 0, 'YXZ'));
         });
-        window.addEventListener('mousedown', shoot);
+        window.addEventListener('mousedown', () => {
+            unlockAudio();
+            shoot();
+        });
         
         window.addEventListener('keydown', (e) => { 
             if(e.code === 'ArrowUp') moveFwd = true; 
@@ -146,13 +161,10 @@ function setupControls() {
 function shoot() {
     if (!player || isGameOver || ammo <= 0) return;
 
-    // --- Play sound and unlock audio on mobile ---
+    // --- Play sound ---
     if (shootSound) {
-        const playPromise = shootSound.play();
-        if (playPromise !== undefined) {
-            playPromise.catch(() => {}); // ignore if blocked
-        }
-        shootSound.currentTime = 0; // reset for rapid shooting
+        shootSound.currentTime = 0;
+        shootSound.play().catch(() => {});
     }
 
     ammo--;
@@ -190,7 +202,7 @@ function finishGame(win) {
     document.getElementById('result-title').innerText = win ? "MISSION SUCCESS" : "MISSION FAILED";
 }
 
-// --- 6. Start Button (Full Screen + Audio Unlock) ---
+// --- 6. Start Button (Full Screen) ---
 if (startBtn) {
     startBtn.onclick = () => {
         startOverlay.style.display = 'none';
@@ -200,17 +212,6 @@ if (startBtn) {
         if (el.requestFullscreen) el.requestFullscreen();
         else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
         else if (el.msRequestFullscreen) el.msRequestFullscreen();
-
-        // --- Unlock Audio for Mobile ---
-        if (shootSound) {
-            const playPromise = shootSound.play();
-            if (playPromise !== undefined) {
-                playPromise.then(() => {
-                    shootSound.pause();
-                    shootSound.currentTime = 0;
-                }).catch(() => {});
-            }
-        }
 
         initGame();
     };
