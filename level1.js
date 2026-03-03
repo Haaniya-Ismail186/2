@@ -84,7 +84,7 @@ function animate() {
     const dt = clock.getDelta();
     
     if (player) {
-        player.quaternion.slerp(targetQuat, 0.15); // Gyro speed
+        player.quaternion.slerp(targetQuat, 0.2); // Smoother Gyro
         if (playerMixer) playerMixer.update(dt);
         if (moveFwd) {
             const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(player.quaternion);
@@ -110,14 +110,17 @@ function setupControls() {
     if (isMobile) {
         window.addEventListener('deviceorientation', (e) => {
             if (isGameOver || !player) return;
-            // Landscape fix for Gyro
             let angle = (window.innerWidth > window.innerHeight) ? e.beta : e.gamma;
-            let rotationY = -THREE.MathUtils.degToRad(angle * 2.5); 
+            let rotationY = -THREE.MathUtils.degToRad(angle * 2.8); 
             targetQuat.setFromEuler(new THREE.Euler(0, rotationY, 0, 'YXZ'));
         });
 
         document.getElementById('fire-btn').addEventListener('touchstart', (e) => {
             e.preventDefault();
+            // Audio Force Wakeup
+            if (shootSound.paused) {
+                shootSound.play().then(() => { shootSound.pause(); }).catch(err => {});
+            }
             shoot();
         });
 
@@ -139,10 +142,14 @@ function setupControls() {
 function shoot() {
     if (!player || isGameOver || ammo <= 0) return;
     
-    // Mobile sound fix
+    // Mobile Sound Trigger Fix
     if (shootSound) {
         shootSound.currentTime = 0;
-        shootSound.play().catch(err => console.log("Sound interaction needed"));
+        shootSound.muted = false; // Just in case
+        let playPromise = shootSound.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(error => { console.log("Audio playback failed"); });
+        }
     }
 
     ammo--;
@@ -179,22 +186,22 @@ function finishGame(win) {
     document.getElementById('result-title').innerText = win ? "MISSION SUCCESS" : "MISSION FAILED";
 }
 
-// --- 6. Start Button (Full Screen & Audio Unlock) ---
+// --- 6. Start Button (The Ultimate Audio Unlock) ---
 if (startBtn) {
     startBtn.onclick = () => {
         startOverlay.style.display = 'none';
         
-        // Fullscreen fix
+        // Fullscreen Logic
         const el = document.documentElement;
         if (el.requestFullscreen) el.requestFullscreen();
         else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
 
-        // Unlock sound for mobile
+        // THIS IS THE KEY: Unlock audio context on first click
         if (shootSound) {
             shootSound.play().then(() => {
                 shootSound.pause();
                 shootSound.currentTime = 0;
-            }).catch(e => {});
+            }).catch(e => { console.log("Sound unlock error:", e); });
         }
         
         initGame();
