@@ -3,46 +3,28 @@ let scene, camera, renderer, clock, player, playerMixer;
 let enemies = [], isGameOver = false, score = 0, ammo = 100, timeLeft = 60;
 let moveFwd = false, targetQuat = new THREE.Quaternion();
 
-// Professional Audio Engine Variables
-let audioCtx = null;
-let shootBuffer = null;
-
+const shootSound = document.getElementById('shoot-audio');
 const startBtn = document.getElementById('start-btn');
 const startOverlay = document.getElementById('start-overlay');
-const shootAudioElement = document.getElementById('shoot-audio');
 
 const MODEL_URL = 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/models/gltf/Soldier.glb';
 const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-// --- 2. Force Load Audio into Memory ---
-async function loadSoundIntoBuffer() {
-    if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    
-    // HTML tag se source utha kar memory mein save karna
-    if (shootAudioElement && !shootBuffer) {
-        try {
-            const response = await fetch(shootAudioElement.src);
-            const arrayBuffer = await response.arrayBuffer();
-            shootBuffer = await audioCtx.decodeAudioData(arrayBuffer);
-        } catch (e) {
-            console.error("Audio Load Error:", e);
+// --- 2. Mobile Audio & Vibration Fix ---
+function triggerShootEffects() {
+    // 1. Audio Playback
+    if (shootSound) {
+        shootSound.pause(); 
+        shootSound.currentTime = 0;
+        let playPromise = shootSound.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(e => console.log("Browser blocked sound"));
         }
     }
 
-    if (audioCtx.state === 'suspended') {
-        await audioCtx.resume();
-    }
-}
-
-// Memory se sound play karne ka function
-function playDirectSound() {
-    if (audioCtx && shootBuffer) {
-        const source = audioCtx.createBufferSource();
-        source.buffer = shootBuffer;
-        source.connect(audioCtx.destination);
-        source.start(0);
+    // 2. Vibration (Mobile Only) - Agar sound nahi aayi to vibrate karega
+    if (isMobile && window.navigator.vibrate) {
+        window.navigator.vibrate(50); // 50ms vibration
     }
 }
 
@@ -99,7 +81,8 @@ function initGame() {
 function animate() {
     const dt = clock.getDelta();
     if (player) {
-        player.quaternion.slerp(targetQuat, 0.2); 
+        // Gyro Smoothing
+        player.quaternion.slerp(targetQuat, 0.1); 
         if (playerMixer) playerMixer.update(dt);
         if (moveFwd) {
             const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(player.quaternion);
@@ -118,15 +101,14 @@ function setupControls() {
     if (isMobile) {
         window.addEventListener('deviceorientation', (e) => {
             if (isGameOver || !player) return;
+            // Landscape optimization
             let angle = (window.innerWidth > window.innerHeight) ? e.beta : e.gamma;
-            let rotationY = -THREE.MathUtils.degToRad(angle * 3.5); 
+            let rotationY = -THREE.MathUtils.degToRad(angle * 3.0); 
             targetQuat.setFromEuler(new THREE.Euler(0, rotationY, 0, 'YXZ'));
         });
 
-        const fireBtn = document.getElementById('fire-btn');
-        fireBtn.addEventListener('touchstart', (e) => {
+        document.getElementById('fire-btn').addEventListener('touchstart', (e) => {
             e.preventDefault();
-            if (audioCtx) audioCtx.resume(); 
             shoot();
         });
 
@@ -134,12 +116,8 @@ function setupControls() {
         moveBtn.addEventListener('touchstart', (e) => { e.preventDefault(); moveFwd = true; });
         moveBtn.addEventListener('touchend', (e) => { e.preventDefault(); moveFwd = false; });
     } else {
-        window.addEventListener('mousemove', (e) => {
-            if (isGameOver || !player) return;
-            let rotY = -(e.clientX / window.innerWidth - 0.5) * Math.PI * 1.5;
-            targetQuat.setFromEuler(new THREE.Euler(0, rotY, 0, 'YXZ'));
-        });
         window.addEventListener('mousedown', shoot);
+        // Laptop keys
         window.addEventListener('keydown', (e) => { if(e.code === 'ArrowUp') moveFwd = true; });
         window.addEventListener('keyup', (e) => { if(e.code === 'ArrowUp') moveFwd = false; });
     }
@@ -148,8 +126,8 @@ function setupControls() {
 function shoot() {
     if (!player || isGameOver || ammo <= 0) return;
     
-    // Memory se sound bajana
-    playDirectSound();
+    // Shoot Effects (Sound + Vibrate)
+    triggerShootEffects();
 
     ammo--;
     document.getElementById('ammo').innerText = ammo;
@@ -171,28 +149,31 @@ function shoot() {
             scene.remove(enemyRoot.mesh);
             score++;
             document.getElementById('enemy-count').innerText = 10 - score;
-            if (score >= 10) { isGameOver = true; finishGame(true); }
+            if (score >= 10) finishGame(win = true);
         }
     }
 }
 
 function finishGame(win) {
+    isGameOver = true;
     document.getElementById('game-over-screen').style.display = 'flex';
     document.getElementById('result-title').innerText = win ? "MISSION SUCCESS" : "MISSION FAILED";
 }
 
-// --- 6. Start Action (Audio Unlock Context) ---
+// --- 6. Start Action ---
 if (startBtn) {
-    startBtn.onclick = async () => {
-        // Full screen activate
+    startBtn.onclick = () => {
+        startOverlay.style.display = 'none';
+        
+        // Fullscreen for mobile
         const el = document.documentElement;
         if (el.requestFullscreen) el.requestFullscreen();
-        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-
-        // Audio engine ko zinda karna (Crucial for Mobile)
-        await loadSoundIntoBuffer();
         
-        startOverlay.style.display = 'none';
+        // Audio Unlock (Crucial!)
+        if (shootSound) {
+            shootSound.play().then(() => { shootSound.pause(); }).catch(() => {});
+        }
+        
         initGame();
     };
 }
