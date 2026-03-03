@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Utility Preview | Cyber Parachute</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Oxanium:wght@300;500;800&display=swap');
+
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'Oxanium', sans-serif;
+            margin: 0;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* --- High Altitude Background --- */
+        .sky-bg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, #000428, #004e92);
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        /* Floating Cloud Particles */
+        .cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            filter: blur(50px);
+            border-radius: 50%;
+            animation: moveClouds 10s infinite linear;
+        }
+
+        @keyframes moveClouds {
+            from { transform: translateY(-100px) translateX(0); }
+            to { transform: translateY(110vh) translateX(50px); }
+        }
+
+        /* --- Main Content --- */
+        .preview-container {
+            position: relative;
+            z-index: 10;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* Parachute Animation */
+        .parachute-holder {
+            animation: floatSway 4s ease-in-out infinite;
+            position: relative;
+        }
+
+        .parachute-icon {
+            font-size: clamp(6rem, 25vw, 12rem);
+            color: #ff0000; /* Red Theme */
+            filter: drop-shadow(0 0 30px rgba(255, 0, 0, 0.6));
+        }
+
+        @keyframes floatSway {
+            0%, 100% { transform: translateY(0) rotate(-5deg); }
+            50% { transform: translateY(-30px) rotate(5deg); }
+        }
+
+        /* --- Info Section --- */
+        .utility-info {
+            text-align: center;
+            margin-top: 40px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .level-tag {
+            background: #ff0000;
+            padding: 2px 15px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+
+        .stat-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .stat-fill {
+            height: 100%;
+            background: #ff0000;
+            width: 0%;
+            transition: width 1.5s ease-out;
+        }
+
+        /* --- Footer Button --- */
+        .btn-upgrade {
+            margin-top: 30px;
+            background: transparent;
+            border: 2px solid #ff0000;
+            color: #fff;
+            padding: 12px 50px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: 0.3s;
+            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+        }
+
+        .btn-upgrade:hover {
+            background: #ff0000;
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+<div class="sky-bg" id="clouds"></div>
+
+<div class="preview-container">
+    <div class="parachute-holder">
+        <i id="utilIcon" class="fas fa-parachute-box parachute-icon"></i>
+    </div>
+
+    <div class="utility-info">
+        <div class="level-tag">UTILITY CLASS: EPIC</div>
+        <h2 id="utilName">CYBER PARACHUTE</h2>
+        <p class="text-secondary small">Equipped with Neon Trails and High-Velocity Air Fins.</p>
+        
+        <div class="d-flex justify-content-between small mb-1">
+            <span>Research Progress</span>
+            <span id="progText">0%</span>
+        </div>
+        <div class="stat-bar">
+            <div id="progBar" class="stat-fill"></div>
+        </div>
+    </div>
+
+    <button class="btn-upgrade" onclick="startResearch()">Research Evolution</button>
+</div>
+
+<script>
+    // URL se data nikalna
+    const params = new URLSearchParams(window.location.search);
+    const name = params.get('name') || "Cyber Parachute";
+    const icon = params.get('icon') || "fas fa-parachute-box";
+    const prog = params.get('prog') || "65";
+
+    document.getElementById('utilName').innerText = name.toUpperCase();
+    document.getElementById('utilIcon').className = icon + " parachute-icon";
+    
+    // Progress Bar Animation
+    setTimeout(() => {
+        document.getElementById('progBar').style.width = prog + "%";
+        document.getElementById('progText').innerText = prog + "%";
+    }, 500);
+
+    // Clouds Generator
+    const sky = document.getElementById('clouds');
+    for (let i = 0; i < 8; i++) {
+        let cloud = document.createElement('div');
+        cloud.className = 'cloud';
+        cloud.style.width = Math.random() * 200 + 100 + 'px';
+        cloud.style.height = cloud.style.width;
+        cloud.style.left = Math.random() * 100 + 'vw';
+        cloud.style.animationDelay = Math.random() * 5 + 's';
+        sky.appendChild(cloud);
+    }
+
+    function startResearch() {
+        // Yahan se level-up page par bhej rahe hain
+        const currentLevel = params.get('level') || "1";
+        const theme = params.get('theme') || "red";
+        window.location.href = `level-up.html?name=${name}&icon=${icon}&level=${currentLevel}&theme=${theme}`;
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,277 @@
+:root { 
+    --neon-red: #ff0000; 
+    --dark-bg: #050000; 
+    --hud-bg: rgba(20, 0, 0, 0.85);
+}
+
+body { 
+    margin: 0; 
+    overflow: hidden; 
+    background: var(--dark-bg); 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    touch-action: none; 
+}
+
+/* --- Futuristic HUD Container --- */
+#ui-container { 
+    position:absolute; 
+    top: 20px; 
+    left: 20px; 
+    z-index: 100; 
+    pointer-events: none; 
+    border-left: 4px solid var(--neon-red);
+    padding-left: 15px;
+}
+
+/* Glitch Effect for SAFE ZONE Title */
+.glitch-text { 
+    color: var(--neon-red); 
+    text-shadow: 2px 2px 10px rgba(255, 0, 0, 0.7); 
+    margin: 0; 
+    font-size: 1.8rem;
+    letter-spacing: 4px;
+    animation: neonPulse 2s infinite;
+}
+
+@keyframes neonPulse {
+    0%, 100% { filter: brightness(1); }
+    50% { filter: brightness(1.5); text-shadow: 0 0 20px var(--neon-red); }
+}
+
+.stats-panel { 
+    background: var(--hud-bg); 
+    padding: 12px; 
+    margin-top: 6px; 
+    border-radius: 0 8px 8px 0;
+    box-shadow: -5px 0 15px rgba(255, 0, 0, 0.2);
+    border: 1px solid rgba(255, 0, 0, 0.2);
+}
+
+.stat { 
+    color: #fff; 
+    font-size: 0.85rem; 
+    font-weight: bold; 
+    margin-bottom: 4px;
+    letter-spacing: 1px;
+}
+
+/* --- Advanced Crosshair --- */
+#crosshair-container { 
+    position: absolute; 
+    top: 50%; 
+    left: 50%; 
+    transform: translate(-50%, -50%); 
+    pointer-events: none; 
+}
+
+#crosshair { 
+    width: 30px; 
+    height: 30px; 
+    border: 1px solid var(--neon-red); 
+    border-radius: 50%; 
+    position: relative;
+}
+
+#crosshair::before, #crosshair::after {
+    content: '';
+    position: absolute;
+    background: var(--neon-red);
+}
+
+#crosshair::before { width: 100%; height: 1px; top: 50%; left: 0; }
+#crosshair::after { width: 1px; height: 100%; left: 50%; top: 0; }
+
+/* --- Mobile Controls (Industrial Style) --- */
+#mobile-controls { 
+    display: none; 
+    position: fixed; 
+    bottom: 40px; 
+    width: 100%; 
+    z-index: 1000; 
+    pointer-events: none; 
+}
+
+.touch-btn { 
+    width: 85px; 
+    height: 85px; 
+    background: rgba(255, 0, 0, 0.05); 
+    border: 2px solid var(--neon-red); 
+    border-radius: 12px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    color: #fff; 
+    font-weight: bold; 
+    pointer-events: auto; 
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+    user-select: none;
+}
+
+#move-btn { float: left; margin-left: 30px; transform: rotate(-5deg); }
+#fire-btn { float: right; margin-right: 30px; transform: rotate(5deg); }
+
+/* --- Result Card (Success/Fail) --- */
+#game-over-screen { 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%; 
+    background: radial-gradient(circle, rgba(40,0,0,0.9) 0%, rgba(0,0,0,1) 100%); 
+    display: none; 
+    align-items: center; 
+    justify-content: center; 
+    z-index: 5000; 
+}
+
+.result-card { 
+    background: #000; 
+    border: 3px solid var(--neon-red); 
+    padding: 40px; 
+    text-align: center; 
+    border-radius: 20px; 
+    width: 80%;
+    max-width: 400px; /* PC par zyada bara na ho */
+    box-shadow: 0 0 30px var(--neon-red);
+    color: #fff;
+}
+
+#result-title { font-size: 2.5rem; margin-bottom: 10px; }
+
+.button-group { 
+    display: flex; 
+    gap: 15px; 
+    margin-top: 25px; 
+}
+
+.card-btn { 
+    flex: 1; 
+    padding: 15px; 
+    border: none; 
+    font-weight: bold; 
+    cursor: pointer; 
+    border-radius: 8px; 
+    text-transform: uppercase; 
+    transition: 0.3s;
+    font-size: 0.9rem;
+}
+
+.primary { background: var(--neon-red); color: #000; }
+.primary:hover { transform: scale(1.05); background: #fff; }
+
+.secondary { 
+    background: transparent; 
+    color: var(--neon-red); 
+    border: 2px solid var(--neon-red); 
+}
+
+/* --- Exit Button --- */
+.exit-btn-top {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    border: 2px solid var(--neon-red);
+    color: var(--neon-red);
+    text-decoration: none;
+    font-weight: bold;
+    z-index: 9999;
+    border-radius: 3px;
+    transition: 0.3s;
+}
+
+.exit-btn-top:hover {
+    background: var(--neon-red);
+    color: #000;
+}
+
+/* --- RESPONSIVE ADJUSTMENTS --- */
+
+/* For Tablets and Mobile */
+@media (max-width: 768px) { 
+    #mobile-controls { display: block; }
+    #ui-container { top: 15px; left: 15px; }
+    .glitch-text { font-size: 1.3rem; letter-spacing: 2px; }
+    
+    .touch-btn {
+        width: 70px;
+        height: 70px;
+        font-size: 0.8rem;
+    }
+
+    #move-btn { margin-left: 15px; }
+    #fire-btn { margin-right: 15px; }
+
+    .result-card {
+        padding: 25px;
+        width: 85%;
+    }
+
+    #result-title { font-size: 1.8rem; }
+    
+    .exit-btn-top {
+        top: 15px;
+        right: 15px;
+        padding: 8px 15px;
+        font-size: 0.8rem;
+    }
+}
+
+/* For Extra Small Screens (Very small phones) */
+@media (max-width: 480px) {
+    .glitch-text { font-size: 1.1rem; }
+    .stat { font-size: 0.75rem; }
+    
+    .button-group {
+        flex-direction: column; /* Buttons ek ke upar ek aayenge */
+    }
+    
+    .touch-btn {
+        width: 65px;
+        height: 65px;
+    }
+}
+
+#mobile-controls {
+    position: fixed;
+    bottom: 30px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 30px;
+    box-sizing: border-box;
+    z-index: 1000;
+    /* Desktop par chhupane ke liye, media query niche hai */
+    display: none; 
+}
+
+/* Jab screen 768px se choti ho tab dikhay */
+@media (max-width: 768px) {
+    #mobile-controls {
+        display: flex;
+    }
+}
+
+.touch-btn {
+    width: 80px;            /* Button ki chorai */
+    height: 80px;           /* Button ki lambai */
+    background: transparent; /* Circle ke andar ka rang khali */
+    border: 3px solid #ffffff; /* White Circle Border */
+    border-radius: 50%;     /* Isse circle banega */
+    display: flex;
+    align-items: center;    /* Text ko center mein lane ke liye */
+    justify-content: center; /* Text ko center mein lane ke liye */
+    color: #ffffff;         /* Text ka rang white */
+    font-weight: bold;      /* Text ko mota karne ke liye */
+    font-size: 14px;
+    text-transform: uppercase;
+    pointer-events: auto;   /* Clickable banane ke liye */
+    user-select: none;      /* Touch karte waqt text select na ho */
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3); /* Halka sa white glow */
+}
+
+/* Touch karne par halka sa effect */
+.touch-btn:active {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(0.95);
+}

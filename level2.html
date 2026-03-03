@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>The Red Room | Safe Zone</title>
+    <link rel="stylesheet" href="level2.css">
+</head>
+<body>
+
+    <div id="damage-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, transparent 50%, rgba(255,0,0,0.4) 100%); pointer-events: none; display: none; z-index: 50;"></div>
+
+    <div id="ui-container">
+        <div class="header-box">
+            <h1 class="glitch-text">SAFE ZONE</h1>
+            <p style="color: #ccc; letter-spacing: 2px;">ELIMINATE 15 HEAVY STALKERS</p>
+        </div>
+        <div class="stats-panel">
+            <div class="stat">TIME: <span id="timer">1:20</span></div>
+            <div class="stat">HEALTH: <span id="health">100</span>%</div>
+            <div class="stat">ENEMIES: <span id="enemy-count">15</span></div>
+            <div class="stat">AMMO: <span id="ammo">120</span></div>
+        </div>
+    </div>
+
+    <div id="crosshair-container">
+        <div id="crosshair"></div>
+    </div>
+
+    <div id="mobile-controls">
+        <div id="move-btn" class="touch-btn">RUN</div>
+        <div id="fire-btn" class="touch-btn">FIRE</div>
+    </div>
+
+    <div id="game-over-screen" style="display: none;">
+        <div class="result-card">
+            <h1 id="result-title">MISSION ENDED</h1>
+            <p id="result-reason" style="color: #888;">SECTOR STATUS UPDATED</p>
+            
+            <div class="result-stats">
+                <p>KILLS: <span id="final-kills">0</span>/15</p>
+                <p>TIME: <span id="final-time">0:00</span></p>
+            </div>
+
+            <div class="button-group">
+                <button onclick="location.reload()" class="card-btn primary">RETRY</button>
+                <a href="games.html" class="card-btn secondary">MENU</a>
+            </div>
+        </div>
+    </div>
+
+    <a href="games.html" class="exit-btn-top">EXIT</a>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    
+    <script src="level2.js"></script>
+</body>
+</html>

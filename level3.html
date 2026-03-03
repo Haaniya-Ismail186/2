@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>The Mansion | Level 3</title>
+    <link rel="stylesheet" href="level3.css">
+</head>
+<body>
+    <div id="damage-overlay"></div>
+
+    <div id="ui-container">
+        <div class="header-box">
+            <h1 class="glitch-text">THE MANSION</h1>
+            <p style="color: #ccc; letter-spacing: 2px;">ELIMINATE 20 CAMPING ENEMIES</p>
+        </div>
+        <div class="stats-panel">
+            <div class="stat">TIME: <span id="timer">08:00</span></div>
+            <div class="stat">HEALTH: <span id="health">100</span>%</div>
+            <div class="stat">ENEMIES: <span id="enemy-count">20</span></div>
+            <div class="stat">AMMO: <span id="ammo">150</span></div>
+        </div>
+    </div>
+
+    <div id="crosshair-container"><div id="crosshair"></div></div>
+
+    <div id="mobile-controls">
+        <div id="move-btn" class="touch-btn">MOVE</div>
+        <div id="fire-btn" class="touch-btn">FIRE</div>
+    </div>
+
+    <div id="game-over-screen">
+        <div class="result-card">
+            <h1 id="result-title">MISSION ENDED</h1>
+            <div class="result-stats">
+                <p>KILLS: <span id="final-kills">0</span>/20</p>
+                <p>TIME: <span id="final-time">0:00</span></p>
+            </div>
+            <div class="button-group">
+                <button onclick="location.reload()" class="card-btn primary">RETRY</button>
+                <a href="games.html" class="card-btn secondary">MENU</a>
+            </div>
+        </div>
+    </div>
+
+    <a href="games.html" class="exit-btn-top">EXIT</a>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="level3.js"></script>
+</body>
+</html>

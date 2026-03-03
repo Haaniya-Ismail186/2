@@ -1,0 +1,194 @@
+/* --- Modern Gaming Theme: Crimson & Charcoal --- */
+:root {
+    --primary-red: #fd013cda;    /* Neon Crimson */
+    --dark-bg: #050505;       /* Deep Black */
+    --card-bg: #121214;       /* Dark Greyish Black */
+    --text-white: #ffffff;
+    --text-dim: #a0a0a5;
+    --glow: rgba(255, 0, 60, 0.4);
+}
+
+/* --- Base Styles --- */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--dark-bg);
+    color: var(--text-white);
+    font-family: 'Oxanium', 'Orbitron', sans-serif;
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+/* --- Navbar Customization --- */
+.navbar {
+    background-color: rgba(0, 0, 0, 0.95) !important;
+    border-bottom: 2px solid var(--primary-red);
+    padding: 1rem 0;
+    backdrop-filter: blur(10px);
+}
+
+.text-red {
+    color: var(--primary-red) !important;
+}
+
+.nav-link {
+    color: var(--text-white) !important;
+    font-weight: 500;
+    margin: 0 10px;
+    transition: 0.3s;
+}
+
+.nav-link:hover, .nav-link.active {
+    color: var(--primary-red) !important;
+}
+
+/* --- Hero Section (Original Image Included) --- */
+.hero-section {
+    min-height: 85vh;
+    /* Original Image Link */
+    background: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.6)), 
+                url('https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=2070');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed; /* Parallax effect for desktop */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
+}
+
+.animate-title {
+    text-shadow: 0 0 20px var(--glow);
+    letter-spacing: 5px;
+}
+
+/* --- Buttons --- */
+.btn-red {
+    background: var(--primary-red);
+    color: white;
+    padding: 12px 40px;
+    border-radius: 5px;
+    font-weight: bold;
+    text-decoration: none;
+    display: inline-block;
+    transition: 0.4s;
+    border: 2px solid var(--primary-red);
+}
+
+.btn-red:hover {
+    background: transparent;
+    color: var(--primary-red);
+    box-shadow: 0 0 20px var(--glow);
+}
+
+.btn-outline-red {
+    background: transparent;
+    color: white;
+    padding: 12px 40px;
+    border-radius: 5px;
+    font-weight: bold;
+    text-decoration: none;
+    display: inline-block;
+    border: 2px solid var(--primary-red);
+    transition: 0.4s;
+}
+
+.btn-outline-red:hover {
+    background: var(--primary-red);
+    color: white;
+}
+
+/* --- Gaming Grid & Cards --- */
+.gaming-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+    margin-top: 30px;
+}
+
+.hover-box {
+    background: var(--card-bg);
+    border: 1px solid #222;
+    border-radius: 10px;
+    transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.hover-box:hover {
+    transform: translateY(-15px);
+    border-color: var(--primary-red);
+    box-shadow: 0 10px 30px rgba(255, 0, 60, 0.2);
+}
+
+/* Feature Link Reset */
+.feature-link {
+    text-decoration: none !important;
+    color: inherit;
+    display: block;
+}
+
+/* Click Effect */
+.feature-link:active .hover-box {
+    transform: scale(0.95); /* Click karnay par box thora chota hoga */
+    background: rgba(255, 0, 60, 0.1); /* Halka sa red glow background mein */
+    transition: 0.1s;
+}
+
+/* Cursor pointer ensure karna */
+.hover-box {
+    cursor: pointer;
+}
+
+/* --- Unique Footer --- */
+.unique-footer {
+    background: #000;
+    border-top: 4px solid var(--primary-red);
+    padding: 60px 0 30px;
+    margin-top: 100px;
+}
+
+.footer-link {
+    color: var(--text-dim);
+    text-decoration: none;
+    transition: 0.3s;
+    font-size: 0.9rem;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.footer-link:hover {
+    color: var(--primary-red);
+    padding-left: 10px;
+}
+
+/* --- Full Responsiveness --- */
+
+/* For Tablets */
+@media (max-width: 992px) {
+    .display-1 { font-size: 3.5rem; }
+    .hero-section { background-attachment: scroll; } /* Mobile par performance ke liye fixed image off */
+}
+
+/* For Mobile Phones */
+@media (max-width: 768px) {
+    .display-1 { font-size: 2.5rem; }
+    .hero-section { min-height: 60vh; }
+    .btn-red, .btn-outline-red {
+        width: 100%;
+        margin: 10px 0;
+    }
+    .gaming-grid {
+        grid-template-columns: 1fr; /* Single column on mobile */
+    }
+    .unique-footer { text-align: center; }
+}
+
+/* For Very Small Screens */
+@media (max-width: 480px) {
+    .navbar-brand { font-size: 1.2rem; }
+    .display-1 { font-size: 2rem; }
+}

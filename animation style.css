@@ -1,0 +1,298 @@
+/* --- High-Octane Gaming Theme: Crimson & Pitch Black --- */
+:root {
+    --primary-red: #ff003c;    /* Neon Crimson */
+    --hover-red: #cc0032;      /* Darker Red */
+    --deep-black: #050505;     /* Main Background */
+    --card-black: #121214;     /* Card Background */
+    --text-white: #ffffff;
+    --text-grey: #a0a0a5;
+    --glow-red: rgba(255, 0, 60, 0.5);
+}
+
+/* --- Base Reset & Responsiveness --- */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    width: 100%;
+    overflow-x: hidden; /* Mobile par horizontal scroll khatam */
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: var(--deep-black);
+    color: var(--text-white);
+    font-family: 'Oxanium', 'Orbitron', sans-serif;
+    line-height: 1.6;
+}
+
+/* --- Navbar & Mobile Toggle Fix --- */
+.navbar {
+    background-color: rgba(0, 0, 0, 0.95) !important;
+    border-bottom: 2px solid var(--primary-red);
+    padding: 1rem 0;
+    backdrop-filter: blur(10px);
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    letter-spacing: 2px;
+}
+
+.text-red {
+    color: var(--primary-red) !important;
+    text-shadow: 0 0 10px var(--glow-red);
+}
+
+.nav-link {
+    color: var(--text-white) !important;
+    font-weight: bold;
+    margin: 0 10px;
+    transition: 0.3s;
+    text-transform: uppercase;
+}
+
+.nav-link:hover, .nav-link.active {
+    color: var(--primary-red) !important;
+}
+
+/* Navbar Toggle Button Fix */
+.navbar-toggler {
+    border: 1px solid var(--primary-red) !important;
+}
+
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='%23ff003c' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E") !important;
+}
+
+@media (max-width: 991px) {
+    .navbar-collapse {
+        background: #000;
+        text-align: center;
+        margin-top: 15px;
+        padding: 20px;
+        border-top: 1px solid var(--primary-red);
+    }
+    .nav-link {
+        padding: 12px 0 !important;
+        border-bottom: 1px solid #111;
+    }
+}
+
+/* Links ko clean karne ke liye */
+.card-link {
+    text-decoration: none !important; 
+    color: inherit !important;      
+    display: block;                  
+    outline: none;
+}
+
+/* Hover par underline rokne ke liye */
+.card-link:hover, .card-link:focus, .card-link:active {
+    text-decoration: none !important;
+    color: inherit !important;
+}
+
+/* Card ka asli look barqarar rakhne ke liye */
+.anim-card {
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    background: rgba(255,255,255,0.05);
+    transition: all 0.3s ease;
+}
+
+.card-link:hover .anim-card {
+    background: rgba(255,255,255,0.1);
+    border-color: #ff0000; /* Red border on hover */
+    transform: translateY(-5px);
+}
+
+/* Sabse pehle link ki default decoration khatam karein */
+a.card-link, 
+a.card-link:hover, 
+a.card-link:focus, 
+a.card-link:active {
+    text-decoration: none !important; /* Underline khatam */
+    color: inherit !important;       /* Blue color khatam */
+    outline: none !important;       /* Click border khatam */
+}
+
+/* Card ke andar kisi bhi text par underline na aaye */
+.card-link * {
+    text-decoration: none !important;
+}
+
+/* Hover Effect */
+.card-wrapper {
+    transition: transform 0.3s ease;
+}
+
+.card-link:hover .card-wrapper {
+    transform: translateY(-5px);
+}
+
+.card-wrapper {
+    transition: all 0.3s ease;
+    border-radius: 12px;
+}
+
+.card-wrapper:hover {
+    transform: translateY(-5px);
+}
+
+.anim-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+}
+
+.card-wrapper:hover .anim-card {
+    border-color: #ff0000; /* Red glow on hover */
+    background: rgba(255, 0, 0, 0.05);
+}
+
+/* --- Hero Section --- */
+.hero-section {
+    min-height: 80vh;
+    background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.6)), 
+                url('https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=2070');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.display-1 {
+    font-weight: 800;
+    text-transform: uppercase;
+    text-shadow: 0 0 20px var(--glow-red);
+}
+
+.italic { font-style: italic; }
+
+/* --- Gaming Grid System --- */
+.gaming-grid {
+    display: grid;
+    gap: 25px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    padding: 20px 0;
+}
+
+/* --- Cards Styling --- */
+.hover-box, .level-card, .anim-card {
+    background: var(--card-black);
+    border: 1px solid #222;
+    padding: 25px;
+    border-radius: 8px;
+    transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    height: 100%;
+    text-decoration: none;
+    color: white;
+}
+
+.hover-box:hover, .anim-card:hover {
+    transform: translateY(-10px);
+    border-color: var(--primary-red);
+    box-shadow: 0 10px 30px rgba(255, 0, 60, 0.2);
+}
+
+/* --- Buttons --- */
+.btn-red {
+    background: var(--primary-red);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    font-weight: bold;
+    border-radius: 4px;
+    transition: 0.3s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-red:hover {
+    background: var(--hover-red);
+    box-shadow: 0 0 20px var(--primary-red);
+    color: white;
+}
+
+/* --- Animation Specials --- */
+.pulse {
+    animation: pulse-red 2s infinite;
+}
+
+@keyframes pulse-red {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.weapon-glow {
+    width: 80px;
+    height: 80px;
+    background: radial-gradient(circle, var(--primary-red) 0%, transparent 70%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    border-radius: 50%;
+}
+
+/* FORCE VIEW ANIMATION BUTTON STYLE */
+button.btn-preview {
+  background-color: #e10600 !important; /* red */
+  color: #ffffff !important;            /* white */
+  border: none !important;
+  padding: 12px 16px;
+  font-weight: 600;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+/* HOVER STATE */
+button.btn-preview:hover {
+  background-color: #000000 !important; /* black */
+  color: #e10600 !important;            /* red text */
+  box-shadow: 0 0 15px rgba(225, 6, 0, 0.7),
+              0 0 30px rgba(225, 6, 0, 0.4);
+  transform: translateY(-2px);
+}
+
+/* ACTIVE CLICK */
+button.btn-preview:active {
+  transform: scale(0.96);
+}
+
+/* FIX BUTTON VISIBILITY */
+.anim-card .btn-preview {
+  background-color: #e10600 !important;
+  color: #ffffff !important;
+  position: relative;
+  z-index: 10;              /* VERY IMPORTANT */
+}
+
+/* HOVER EFFECT */
+.anim-card .btn-preview:hover {
+  background-color: #000000 !important;
+  color: #e10600 !important;
+  box-shadow: 0 0 15px rgba(225, 6, 0, 0.8);
+}
+
+/* --- Footer --- */
+.unique-footer {
+    background: #000;
+    border-top: 4px solid var(--primary-red);
+    padding: 60px 0;
+    margin-top: 80px;
+}
+
+/* --- Mobile Fixes --- */
+@media (max-width: 767px) {
+    .display-1 { font-size: 2.5rem !important; }
+    .hero-section { min-height: 60vh; padding: 60px 15px; }
+    .btn-red { width: 100%; text-align: center; }
+}

@@ -1,0 +1,280 @@
+/* --- Global Reset --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: none; /* Zoom aur scroll ko disable karta hai game ke liye */
+}
+
+body {
+    background-color: #000;
+    overflow: hidden;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    width: 100vw;
+    height: 100vh;
+}
+
+/* --- Left Side Vertical HUD --- */
+#ui-container {
+    position: fixed;
+    top: clamp(20px, 5vh, 40px);
+    left: clamp(15px, 5vw, 30px);
+    z-index: 100;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.header-box {
+    border-left: 4px solid #f00;
+    padding-left: 12px;
+    margin-bottom: 10px;
+}
+
+.glitch-text {
+    color: #fff;
+    font-size: clamp(1.1rem, 6vw, 1.8rem);
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.mission-tag {
+    color: #f00;
+    font-size: clamp(0.6rem, 2.5vw, 0.75rem);
+    letter-spacing: 1.5px;
+    font-weight: bold;
+}
+
+/* Stats Styling */
+.stats-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.stat {
+    background: rgba(255, 0, 0, 0.1);
+    border: 1px solid rgba(255, 0, 0, 0.3);
+    color: #ccc;
+    padding: clamp(6px, 2vh, 10px) 15px;
+    font-size: clamp(0.65rem, 3vw, 0.8rem);
+    width: clamp(140px, 35vw, 180px);
+    display: flex;
+    justify-content: space-between;
+    backdrop-filter: blur(5px);
+    clip-path: polygon(0% 0%, 100% 0%, 92% 100%, 0% 100%);
+}
+
+.stat span {
+    color: #fff;
+    font-weight: bold;
+}
+
+/* --- Top Right Exit Button --- */
+.exit-btn-top {
+    position: fixed;
+    top: clamp(20px, 5vh, 30px);
+    right: clamp(15px, 5vw, 30px);
+    z-index: 500;
+    color: #fff;
+    border: 1px solid #f00;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 8px 18px;
+    text-decoration: none;
+    font-size: clamp(0.65rem, 2.5vw, 0.8rem);
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+/* --- Responsive Split Controls (Buttons) --- */
+#mobile-controls {
+    position: fixed;
+    bottom: clamp(30px, 10vh, 60px);
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 8%; /* Sides se gap */
+    z-index: 500;
+    pointer-events: none;
+}
+
+.touch-btn {
+    width: clamp(75px, 20vw, 105px);
+    height: clamp(75px, 20vw, 105px);
+    background: rgba(255, 0, 0, 0.1);
+    border: 3.5px solid #f00;
+    border-radius: 50%;
+    color: #fff;
+    font-weight: 900;
+    font-size: clamp(0.8rem, 3.5vw, 1rem);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
+    pointer-events: auto; /* Clickable banane ke liye */
+    transition: transform 0.1s ease, background 0.1s ease;
+}
+
+.touch-btn:active {
+    background: #f00;
+    transform: scale(0.9);
+    box-shadow: 0 0 35px #f00;
+}
+
+/* --- Crosshair (Center) --- */
+#crosshair-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 50;
+    pointer-events: none;
+}
+
+#crosshair {
+    width: 24px;
+    height: 24px;
+    border: 2px solid rgba(0, 255, 0, 0.6);
+    border-radius: 50%;
+}
+
+/* --- Landscape Fix (Phone horizontal ho toh) --- */
+@media (max-height: 450px) {
+    #ui-container { top: 10px; left: 15px; }
+    .header-box { margin-bottom: 5px; }
+    .stats-panel { gap: 4px; }
+    .stat { padding: 4px 10px; width: 130px; }
+    #mobile-controls { bottom: 15px; }
+    .touch-btn { width: 65px; height: 65px; border-width: 2.5px; }
+    .exit-btn-top { top: 10px; right: 15px; padding: 5px 12px; }
+}
+
+
+
+
+
+/* Result Screen Overlay */
+#game-over-screen {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.9);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000000;
+    backdrop-filter: blur(12px);
+    font-family: 'Orbitron', sans-serif;
+    padding: 20px; /* Mobile par padding zaroori hai */
+}
+
+/* The Stylish Card - Responsive Update */
+.result-card {
+    background: linear-gradient(145deg, #1a1a1a, #0d0d0d);
+    padding: 40px 20px; /* Padding kam ki mobile ke liye */
+    border-radius: 25px;
+    text-align: center;
+    border: 3px solid #f00;
+    box-shadow: 0 0 50px rgba(255, 0, 0, 0.2);
+    width: 100%; /* Default width full */
+    max-width: 500px; /* Laptop par isse zyada bada nahi hoga */
+    position: relative;
+    overflow: hidden;
+    animation: slideUp 0.6s ease-out;
+}
+
+/* Animations */
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(50px) scale(0.9); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Title Styling */
+#result-title {
+    font-size: 2.5rem; /* Mobile ke liye thoda chota */
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 4px; /* Spacing kam ki */
+    font-weight: 900;
+}
+
+/* Stats Styling */
+#result-stats {
+    color: #fff;
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+    opacity: 0.8;
+}
+
+#final-score {
+    font-weight: bold;
+    font-size: 1.8rem;
+    color: #ff0;
+}
+
+/* Button Styling - Responsive Fix */
+.button-group {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap; /* Buttons mobile par upar niche aa saken */
+}
+
+.card-btn {
+    padding: 12px 30px;
+    border: 2px solid transparent;
+    border-radius: 50px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.9rem;
+    min-width: 140px; /* Buttons ki width barabar rahegi */
+}
+
+.primary {
+    background: #f00;
+    color: white;
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+}
+
+.secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden; /* Scroll bar khatam karne ke liye */
+}
+
+canvas {
+    display: block;
+    width: 100vw !important;
+    height: 100vh !important;
+}
+
+/* --- Media Queries for Larger Screens (Laptop/Tablets) --- */
+@media (min-width: 768px) {
+    .result-card {
+        padding: 60px;
+    }
+    #result-title {
+        font-size: 3.5rem;
+        letter-spacing: 8px;
+    }
+    #result-stats {
+        font-size: 1.5rem;
+    }
+    .card-btn {
+        font-size: 1rem;
+        padding: 15px 40px;
+    }
+}

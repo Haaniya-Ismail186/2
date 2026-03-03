@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weapon Research Lab | Animex</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Oxanium:wght@300;500;800&display=swap');
+        
+        :root {
+            --theme-color: #ff003c;
+        }
+
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'Oxanium', sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            padding: 10px;
+        }
+
+        /* --- Main Lab Container --- */
+        .lab-room {
+            width: 98vw;
+            /* Desktop par fixed height, mobile par auto */
+            height: 92vh; 
+            background: rgba(10, 10, 12, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(0,0,0,1);
+        }
+
+        @media (max-width: 991px) {
+            .lab-room {
+                height: auto; /* Mobile par content ke hisab se barhega */
+                min-height: 95vh;
+                overflow-y: auto;
+            }
+        }
+
+        .top-nav {
+            padding: 15px 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #0a0a0c;
+            z-index: 10;
+        }
+
+        .main-display {
+            flex: 1;
+            display: flex;
+            flex-direction: row;
+            min-height: 0; /* Flexbox scroll fix */
+        }
+
+        @media (max-width: 991px) {
+            .main-display { 
+                flex-direction: column; 
+            }
+        }
+
+        /* --- Sidebar Details --- */
+        .side-specs {
+            width: 400px;
+            padding: 40px;
+            background: linear-gradient(90deg, rgba(0,0,0,0.5), transparent);
+            border-right: 1px solid rgba(255,255,255,0.05);
+            z-index: 5;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        @media (max-width: 991px) {
+            .side-specs {
+                width: 100%;
+                padding: 30px 20px;
+                border-right: none;
+                border-top: 1px solid rgba(255,255,255,0.1);
+                order: 2; /* Mobile par text neeche aayega */
+                background: none;
+            }
+        }
+
+        /* --- Weapon Viewport --- */
+        .weapon-viewport {
+            flex: 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+            order: 1; /* Mobile par weapon pehle dikhega */
+        }
+
+        .weapon-master-icon {
+            font-size: clamp(6rem, 25vw, 13rem);
+            filter: drop-shadow(0 0 40px var(--theme-color));
+            animation: weaponFloat 4s ease-in-out infinite;
+            z-index: 2;
+        }
+
+        @keyframes weaponFloat {
+            0%, 100% { transform: translateY(0) rotate(-3deg); }
+            50% { transform: translateY(-15px) rotate(3deg); }
+        }
+
+        .grid-bg {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: radial-gradient(var(--theme-color) 0.5px, transparent 0.5px);
+            background-size: 30px 30px;
+            opacity: 0.1;
+        }
+
+        /* --- UI Elements --- */
+        .level-box {
+            display: inline-block;
+            padding: 5px 15px;
+            background: #1a1a1a;
+            border-left: 4px solid var(--theme-color);
+            margin-bottom: 15px;
+            font-weight: 800;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+        }
+
+        .upgrade-btn {
+            background: var(--theme-color);
+            color: #000;
+            border: none;
+            font-weight: 800;
+            padding: 16px 30px;
+            clip-path: polygon(8% 0, 100% 0, 92% 100%, 0 100%);
+            width: 100%;
+            transition: 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 20px;
+        }
+
+        .upgrade-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4), 0 0 15px var(--theme-color);
+            filter: brightness(1.2);
+        }
+
+        /* Scan Text Fix for Mobile */
+        .scan-info {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            text-align: right;
+            font-family: monospace;
+            z-index: 3;
+        }
+
+        @media (max-width: 576px) {
+            .scan-info { font-size: 0.7rem; bottom: 10px; right: 10px; }
+            .side-specs h1 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="lab-room">
+    <div class="top-nav">
+        <div class="small"><i class="fas fa-microchip text-danger me-2"></i> WEAPON_LAB_v4</div>
+        <a href="javascript:history.back()" class="btn btn-outline-light btn-sm px-3" style="font-size: 0.7rem;">EXIT_LAB</a>
+    </div>
+
+    <div class="main-display">
+        <div class="weapon-viewport">
+            <div class="grid-bg"></div>
+            <i id="w-icon" class="weapon-master-icon"></i>
+            
+            <div class="scan-info d-none d-sm-block">
+                <div class="text-danger fw-bold small">SCANNING_SUCCESS</div>
+                <div class="opacity-50 small">VFX_SYNC: 100%<br>LAYER: RENDER_PRO</div>
+            </div>
+        </div>
+
+        <div class="side-specs">
+            <div class="level-box">LATEST_MODEL: <span id="w-level">0</span></div>
+            <h1 id="w-name" class="fw-bold text-uppercase mb-1">---</h1>
+            <p class="text-secondary small mb-4" style="line-height: 1.4;">Architectural rendering and particle stabilization complete. Asset is ready for evolution.</p>
+            
+            <div class="mb-3">
+                <div class="d-flex justify-content-between mb-1">
+                    <small class="fw-bold" style="font-size: 0.7rem;">CALIBRATION_STRENGTH</small>
+                    <small id="w-percent" class="fw-bold">0%</small>
+                </div>
+                <div class="progress bg-dark" style="height: 6px; border-radius: 0;">
+                    <div id="w-bar" class="progress-bar" style="width: 0%; transition: 1.5s ease-out;"></div>
+                </div>
+            </div>
+
+            <div class="mt-2">
+                <h6 class="fw-bold opacity-75" style="font-size: 0.65rem; letter-spacing: 1px;">CORE_REQUIREMENTS</h6>
+                <div class="d-flex gap-3 opacity-50">
+                    <i class="fas fa-microchip"></i>
+                    <i class="fas fa-atom"></i>
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+            </div>
+            
+            <button class="upgrade-btn" onclick="triggerLevelUp()">LEVEL UP ASSET</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const name = params.get('name') || "Unknown Weapon";
+    const level = params.get('level') || "0";
+    const prog = params.get('prog') || "0";
+    const theme = params.get('theme');
+    const icon = params.get('icon') || "fas fa-gun";
+
+    document.getElementById('w-name').innerText = name;
+    document.getElementById('w-level').innerText = "LVL " + level;
+    document.getElementById('w-percent').innerText = prog + "%";
+    document.getElementById('w-icon').className = icon + " weapon-master-icon";
+
+    setTimeout(() => {
+        document.getElementById('w-bar').style.width = prog + "%";
+    }, 500);
+
+    let themeColor = "#ff003c"; 
+    if(theme === 'ice') themeColor = "#00d2ff"; 
+    if(theme === 'gold') themeColor = "#ffcc00"; 
+
+    document.documentElement.style.setProperty('--theme-color', themeColor);
+    document.getElementById('w-bar').style.backgroundColor = themeColor;
+    document.getElementById('w-bar').style.boxShadow = `0 0 15px ${themeColor}`;
+
+    function triggerLevelUp() {
+        const currentParams = window.location.search;
+        window.location.href = "level-up.html" + currentParams;
+    }
+</script>
+
+</body>
+</html>

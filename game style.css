@@ -1,0 +1,179 @@
+/* 1. Global Reset & Background */
+body {
+    background-color: #050505; /* Deep Black */
+    color: #ffffff;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+/* 2. Navbar Styling */
+.navbar {
+    background-color: #000000 !important;
+    --primary-red: #fd013cda;    /* Neon Crimson */
+    --primary-red: #fd013cda;    /* Neon Crimson */
+    border-bottom: 2px solid ; /* Red Border Line */
+    box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+}
+
+.navbar-brand {
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px ;
+    color:#fd013cda ;
+}
+
+:root {
+    --primary-red:#fd013cda;
+    --bg-black: #000000;
+}
+
+/* Navbar Base */
+.navbar {
+    background-color: var(--bg-black) !important;
+    border-bottom: 2px solid var(--primary-red); /* Image wali red line */
+    padding: 1.2rem 0;
+}
+
+/* Brand Name (Left Side) */
+.navbar-brand {
+    color: #fd013cda ;
+    font-size: 1.5rem;
+    letter-spacing: 2px;
+}
+
+.fw-bold{
+    color:#fd013cda ;
+}
+
+.navbar-brand :hover{
+    color:#fd013cda ;
+}
+
+/* Nav Links Styling */
+.nav-link {
+    color: #ffffff !important; /* Default white */
+    font-size: 1rem;
+    font-weight: 500;
+    margin-left: 25px;
+    transition: 0.3s ease;
+}
+
+/* Jis page par click ho (Active Page) uska color Red ho jaye */
+.active-page {
+    color: var(--primary-red) !important;
+}
+
+/* Hover par bhi red ho jaye */
+.nav-link:hover {
+    color: var(--primary-red) !important;
+}
+
+/* Mobile responsive menu button */
+.navbar-toggler {
+    border-color: var(--primary-red);
+}
+
+/* 3. Heading Section */
+h1.text-warning {
+    color: #ff0000 !important; /* Warning ko Red mein badla */
+    text-transform: uppercase;
+    font-weight: 900;
+    letter-spacing: 5px;
+    margin-top: 40px;
+    text-shadow: 2px 2px 0px #330000;
+}
+
+/* 4. Level Cards Design */
+.level-card {
+    background: linear-gradient(145deg, #1a1a1a, #000000);
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 30px 15px;
+    position: relative;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: pointer;
+    overflow: hidden;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+}
+
+/* Hover Effect for Unlocked Levels */
+.level-card:hover:not(.locked) {
+    transform: translateY(-10px) scale(1.03);
+    border-color: #ff0000;
+    box-shadow: 0 0 25px rgba(255, 0, 0, 0.5);
+    background: #000;
+}
+
+/* 5. Typography inside Cards */
+.level-card h2 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 5px;
+    color: #ff0000 !important;
+}
+
+.level-card p {
+    color: #cccccc;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+}
+
+/* 6. Stars Styling */
+.stars {
+    color: #ff0000 !important; /* Red Stars */
+    font-size: 1.2rem;
+    letter-spacing: 3px;
+}
+
+/* 7. Lock Mechanism */
+.locked {
+    background: #111 !important;
+    opacity: 0.6;
+    cursor: not-allowed;
+    filter: grayscale(1);
+    border: 1px dashed #444;
+}
+
+.lock-icon {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 1.4rem;
+    color: #ff0000;
+}
+
+/* 8. Responsive Adjustments (Media Queries) */
+
+/* Mobile Phones (Choti screens) */
+@media (max-width: 576px) {
+    h1.text-warning {
+        font-size: 1.5rem;
+        letter-spacing: 2px;
+    }
+    
+    .level-card {
+        padding: 20px 10px;
+    }
+    
+    .level-card h2 {
+        font-size: 1.8rem;
+    }
+}
+
+/* Tablets */
+@media (min-width: 577px) and (max-width: 992px) {
+    .container {
+        max-width: 90%;
+    }
+}
+
+/* Button/Link Hover Sound Feel */
+.level-card:active {
+    transform: scale(0.95);
+}

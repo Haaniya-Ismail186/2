@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asset Evolution | Level Up</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Oxanium:wght@300;500;800&display=swap');
+
+        :root {
+            --evolve-color: #00ffcc;
+        }
+
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'Oxanium', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            background: radial-gradient(circle at center, #0a1a1a 0%, #000 100%);
+        }
+
+        .evolution-chamber {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            flex-grow: 1;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* Scanning Overlay */
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: repeating-linear-gradient(0deg, rgba(0, 255, 204, 0.03) 0px, transparent 2px);
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* --- Asset Styling --- */
+        .asset-container {
+            position: relative;
+            z-index: 5;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .main-asset {
+            font-size: clamp(5rem, 25vw, 10rem);
+            color: #fff;
+            filter: drop-shadow(0 0 30px var(--evolve-color));
+            animation: pulseGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 20px var(--evolve-color)); }
+            50% { transform: scale(1.05); filter: drop-shadow(0 0 50px var(--evolve-color)); }
+        }
+
+        /* --- HUD (Desktop side, Mobile top/bottom) --- */
+        .hud-wrapper {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 40px;
+            z-index: 5;
+            max-width: 1200px;
+        }
+
+        @media (max-width: 991px) {
+            .hud-wrapper {
+                flex-direction: column;
+                padding: 0;
+                gap: 15px;
+            }
+            .hud-left, .hud-right {
+                display: flex;
+                gap: 20px;
+                text-align: center !important;
+            }
+        }
+
+        .hud-label { font-size: 0.65rem; color: var(--evolve-color); opacity: 0.6; margin-bottom: 2px; letter-spacing: 1px; }
+        .hud-value { font-size: 0.9rem; font-weight: 500; margin-bottom: 8px; }
+
+        /* --- Card & Buttons --- */
+        .level-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            border: 1px solid rgba(0, 255, 204, 0.3);
+            text-align: center;
+            clip-path: polygon(10% 0, 90% 0, 100% 50%, 90% 100%, 10% 100%, 0 50%);
+            margin-bottom: 20px;
+            min-width: 280px;
+        }
+
+        .btn-confirm {
+            background: var(--evolve-color);
+            color: #000;
+            border: none;
+            padding: 14px 50px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+            z-index: 20;
+        }
+
+        .btn-confirm:hover {
+            box-shadow: 0 0 30px var(--evolve-color);
+            transform: translateY(-3px);
+            filter: brightness(1.1);
+        }
+
+        /* Energy Rings */
+        .energy-ring {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            border: 2px solid var(--evolve-color);
+            border-radius: 50%;
+            opacity: 0.2;
+            animation: ringExpand 3s linear infinite;
+            pointer-events: none;
+        }
+        @keyframes ringExpand {
+            0% { width: 40px; height: 40px; opacity: 1; }
+            100% { width: 450px; height: 450px; opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="evolution-chamber">
+    <div class="hud-wrapper">
+        <div class="hud-left" style="text-align: left;">
+            <div><div class="hud-label">SYNC_STATUS</div><div class="hud-value">STABLE</div></div>
+            <div><div class="hud-label">SKELETON</div><div class="hud-value">99.9%</div></div>
+        </div>
+
+        <div class="asset-container">
+            <div class="energy-ring"></div>
+            <i id="assetIcon" class="fas fa-gun main-asset"></i>
+        </div>
+
+        <div class="hud-right" style="text-align: right;">
+            <div><div class="hud-label">VFX_ENGINE</div><div class="hud-value">ACTIVE</div></div>
+            <div><div class="hud-label">CORE_TEMP</div><div class="hud-value">OPTIMAL</div></div>
+        </div>
+    </div>
+
+    <div class="level-card">
+        <div class="hud-label">EVOLUTION SUCCESSFUL</div>
+        <h2 id="assetName" style="font-size: 1.5rem; margin: 8px 0; text-transform: uppercase;">---</h2>
+        <div class="d-flex align-items-center justify-content-center gap-3">
+            <span id="oldLvl" style="color:#777; text-decoration:line-through;">LVL 0</span>
+            <i class="fas fa-chevron-right text-success" style="font-size: 0.8rem;"></i>
+            <span id="newLvl" style="color:var(--evolve-color); font-weight:bold; font-size:1.4rem;">LVL 1</span>
+        </div>
+    </div>
+
+    <button class="btn-confirm" onclick="goToCongrats()">CLAIM UPGRADE</button>
+</div>
+
+<script>
+    // 1. URL se data lena
+    const params = new URLSearchParams(window.location.search);
+    const name = params.get('name') || "Unknown Asset";
+    const level = params.get('level') || "0";
+    const icon = params.get('icon') || "fas fa-gun";
+    const theme = params.get('theme');
+
+    // 2. UI ko data se fill karna
+    document.getElementById('assetName').innerText = name;
+    document.getElementById('assetIcon').className = icon + " main-asset";
+    
+    const lvl = parseInt(level);
+    document.getElementById('oldLvl').innerText = "LVL " + lvl;
+    document.getElementById('newLvl').innerText = "LVL " + (lvl + 1);
+
+    // 3. Theme dynamic color apply karna
+    let color = '#00ffcc'; // Default Neon Green
+    if(theme === 'ice') color = '#00d2ff';
+    if(theme === 'gold') color = '#ffcc00';
+    if(theme === 'epic') color = '#9d50bb';
+    
+    document.documentElement.style.setProperty('--evolve-color', color);
+
+    // 4. Button function jo agle page par le jaye
+    function goToCongrats() {
+        const nextParams = new URLSearchParams();
+        nextParams.set('name', name);
+        nextParams.set('level', lvl); // Congrats page isse +1 karke reward dikhayega
+        nextParams.set('icon', icon);
+        nextParams.set('theme', theme);
+        
+        // redirecting to congrats.html
+        window.location.href = "congrats.html?" + nextParams.toString();
+    }
+</script>
+
+</body>
+</html>

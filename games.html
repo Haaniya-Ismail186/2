@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animex Play | 18 Levels</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="game style.css">
+    <style>
+        /* Navbar Fix for Toggle Visibility */
+        .navbar-toggler {
+            border-color: rgba(255, 0, 0, 0.5) !important;
+        }
+        .navbar-toggler-icon {
+            /* Hamburger icon ko red/white karne ke liye filter */
+            filter: invert(1); 
+        }
+        .navbar-collapse {
+            /* Mobile par menu ka background black rakhne ke liye */
+            background-color: black;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body class="bg-black">
+    
+<nav class="navbar navbar-expand-lg sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="index.html">ANIMEX PLAY</a>
+        
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto text-uppercase">
+                <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="animations.html">Animations</a></li>
+                <li class="nav-item"><a class="nav-link active-page" href="games.html">Games</a></li>
+                <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+    <div class="container my-5">
+        <h1 class="text-center text-danger mb-2">MISSION MAP</h1>
+        <p class="text-center text-white-50 mb-5">SELECT A LEVEL TO START THE BATTLE</p>
+        
+        <div class="row g-4" id="gameLevels">
+            </div>
+    </div>
+
+    <!-- <script>
+        const levelNames = [
+            "Training Grounds", "Safe Zone", "Blue Zone Rush", "Loot City", 
+            "Sniper Peak", "Bridge Ambush", "Air Drop Hunt", "Desert Storm",
+            "Night In Pochinki", "Squad Wipeout", "Final Circle", "Victory Path",
+            "Elite Combat", "Legendary Raid", "Chicken Dinner", 
+            "Vikendi Chill", "Sanmarth Jungle", "Ultimate Conqueror"
+        ];
+
+        const container = document.getElementById('gameLevels');
+
+        for(let i=0; i < levelNames.length; i++) {
+            let isLocked = i > 2 ? 'locked' : '';
+            let lockIcon = i > 2 ? '<div class="lock-icon">🔒</div>' : '';
+            let levelLink = isLocked ? '#' : `level${i+1}.html`;
+
+            container.innerHTML += `
+                <div class="col-6 col-md-4 col-lg-2">
+                    <div class="level-card ${isLocked} text-center" onclick="if('${isLocked}'==''){ window.location.href='${levelLink}' }">
+                        ${lockIcon}
+                        <h2 class="text-danger">${i+1}</h2>
+                        <p class="small fw-bold text-white">${levelNames[i]}</p>
+                        <div class="stars text-warning">★★★</div>
+                    </div>
+                </div>
+            `;
+        }
+    </script> -->
+
+    <script>
+    const levelNames = [
+        "Training Grounds", "Safe Zone", "The Mansion", "Loot City", 
+        "Sniper Peak", "Bridge Ambush", "Air Drop Hunt", "Desert Storm",
+        "Night In Pochinki", "Squad Wipeout", "Final Circle", "Victory Path",
+        "Elite Combat", "Legendary Raid", "Chicken Dinner", 
+        "Vikendi Chill", "Sanmarth Jungle", "Ultimate Conqueror"
+    ];
+
+    const container = document.getElementById('gameLevels');
+
+    // Check karein ke Level 4 unlock hai ya nahi
+    const isLevel4Unlocked = localStorage.getItem('level4Unlocked') === 'true';
+
+    for(let i=0; i < levelNames.length; i++) {
+        let isLocked = '';
+
+        // Level 1, 2, 3 default unlock hain (i < 3)
+        // Level 4 (index 3) tab unlock hoga jab localStorage true ho
+        if (i > 2) {
+            if (i === 3 && isLevel4Unlocked) {
+                isLocked = ''; // Unlock Level 4
+            } else {
+                isLocked = 'locked'; // Keep others locked
+            }
+        }
+
+        let lockIcon = isLocked ? '<div class="lock-icon">🔒</div>' : '';
+        let levelLink = isLocked ? '#' : `level${i+1}.html`;
+        let btnText = (i === 3 && isLevel4Unlocked) ? "UNLOCKED" : levelNames[i];
+
+        container.innerHTML += `
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="level-card ${isLocked} text-center" 
+                     id="level-btn-${i+1}"
+                     onclick="if('${isLocked}'==''){ window.location.href='${levelLink}' }">
+                    ${lockIcon}
+                    <h2 class="text-danger">${i+1}</h2>
+                    <p class="small fw-bold text-white">${btnText}</p>
+                    <div class="stars text-warning">★★★</div>
+                </div>
+            </div>
+        `;
+    }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
