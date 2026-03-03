@@ -3,40 +3,50 @@ let scene, camera, renderer, clock, player, playerMixer;
 let enemies = [], isGameOver = false, score = 0, ammo = 100, timeLeft = 60;
 let moveFwd = false, targetQuat = new THREE.Quaternion();
 
-// HTML Elements
-const shootSound = document.getElementById('shoot-audio');
+// Professional Audio Engine Variables
+let audioCtx = null;
+let shootBuffer = null;
+
 const startBtn = document.getElementById('start-btn');
 const startOverlay = document.getElementById('start-overlay');
+const shootAudioElement = document.getElementById('shoot-audio');
 
 const MODEL_URL = 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/models/gltf/Soldier.glb';
 const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-// --- 2. Mobile Audio Fix (The 'Poke' Method) ---
-function unlockAudio() {
-    if (shootSound) {
-        shootSound.muted = true; // Pehle mute karke play karenge
-        shootSound.play().then(() => {
-            shootSound.pause();
-            shootSound.muted = false; // Phir unmute kar denge
-            shootSound.currentTime = 0;
-        }).catch(e => console.log("Audio unlock failed"));
+// --- 2. Force Load Audio into Memory ---
+async function loadSoundIntoBuffer() {
+    if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    
+    // HTML tag se source utha kar memory mein save karna
+    if (shootAudioElement && !shootBuffer) {
+        try {
+            const response = await fetch(shootAudioElement.src);
+            const arrayBuffer = await response.arrayBuffer();
+            shootBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+        } catch (e) {
+            console.error("Audio Load Error:", e);
+        }
+    }
+
+    if (audioCtx.state === 'suspended') {
+        await audioCtx.resume();
     }
 }
 
-// --- 3. Timer Logic ---
-function startTimer() {
-    const timerEl = document.getElementById('timer');
-    const gameTimer = setInterval(() => {
-        if (isGameOver) { clearInterval(gameTimer); return; }
-        timeLeft--;
-        let mins = Math.floor(timeLeft / 60);
-        let secs = timeLeft % 60;
-        if (timerEl) timerEl.innerText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-        if (timeLeft <= 0) { clearInterval(gameTimer); finishGame(false); }
-    }, 1000);
+// Memory se sound play karne ka function
+function playDirectSound() {
+    if (audioCtx && shootBuffer) {
+        const source = audioCtx.createBufferSource();
+        source.buffer = shootBuffer;
+        source.connect(audioCtx.destination);
+        source.start(0);
+    }
 }
 
-// --- 4. Init Game ---
+// --- 3. Init Game ---
 function initGame() {
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x050505);
@@ -82,11 +92,10 @@ function initGame() {
     });
 
     setupControls();
-    startTimer();
     renderer.setAnimationLoop(animate);
 }
 
-// --- 5. Animation Loop ---
+// --- 4. Animation Loop ---
 function animate() {
     const dt = clock.getDelta();
     if (player) {
@@ -95,7 +104,6 @@ function animate() {
         if (moveFwd) {
             const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(player.quaternion);
             player.position.add(dir.multiplyScalar(0.18)); 
-            player.position.y = 0;
         }
         const camPos = new THREE.Vector3(0, 4.5, 9).applyQuaternion(player.quaternion);
         camera.position.lerp(player.position.clone().add(camPos), 0.1);
@@ -105,20 +113,20 @@ function animate() {
     renderer.render(scene, camera);
 }
 
-// --- 6. Controls & Shoot ---
+// --- 5. Controls & Shoot ---
 function setupControls() {
     if (isMobile) {
         window.addEventListener('deviceorientation', (e) => {
             if (isGameOver || !player) return;
             let angle = (window.innerWidth > window.innerHeight) ? e.beta : e.gamma;
-            let rotationY = -THREE.MathUtils.degToRad(angle * 3.5); // Better Gyro
+            let rotationY = -THREE.MathUtils.degToRad(angle * 3.5); 
             targetQuat.setFromEuler(new THREE.Euler(0, rotationY, 0, 'YXZ'));
         });
 
         const fireBtn = document.getElementById('fire-btn');
         fireBtn.addEventListener('touchstart', (e) => {
             e.preventDefault();
-            unlockAudio(); // Har shot par audio ko jagate rahenge
+            if (audioCtx) audioCtx.resume(); 
             shoot();
         });
 
@@ -140,11 +148,8 @@ function setupControls() {
 function shoot() {
     if (!player || isGameOver || ammo <= 0) return;
     
-    // Play Sound
-    if (shootSound) {
-        shootSound.currentTime = 0;
-        shootSound.play().catch(e => console.log("Still blocked"));
-    }
+    // Memory se sound bajana
+    playDirectSound();
 
     ammo--;
     document.getElementById('ammo').innerText = ammo;
@@ -161,34 +166,33 @@ function shoot() {
             e.mesh.traverse(child => { if (child === hitObject) found = true; });
             return found;
         });
-
         if (enemyRoot && enemyRoot.alive) {
             enemyRoot.alive = false;
             scene.remove(enemyRoot.mesh);
             score++;
             document.getElementById('enemy-count').innerText = 10 - score;
-            if (score >= 10) finishGame(true);
+            if (score >= 10) { isGameOver = true; finishGame(true); }
         }
     }
 }
 
 function finishGame(win) {
-    isGameOver = true;
     document.getElementById('game-over-screen').style.display = 'flex';
     document.getElementById('result-title').innerText = win ? "MISSION SUCCESS" : "MISSION FAILED";
 }
 
-// --- 7. Start Action ---
+// --- 6. Start Action (Audio Unlock Context) ---
 if (startBtn) {
-    startBtn.onclick = () => {
-        unlockAudio(); // Pehla click audio context unlock kar deta hai
-        startOverlay.style.display = 'none';
-        
-        // Fullscreen Toggle
+    startBtn.onclick = async () => {
+        // Full screen activate
         const el = document.documentElement;
         if (el.requestFullscreen) el.requestFullscreen();
         else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
 
+        // Audio engine ko zinda karna (Crucial for Mobile)
+        await loadSoundIntoBuffer();
+        
+        startOverlay.style.display = 'none';
         initGame();
     };
 }
