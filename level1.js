@@ -3,14 +3,47 @@ let scene, camera, renderer, clock, player, playerMixer;
 let enemies = [], isGameOver = false, score = 0, ammo = 100, timeLeft = 60;
 let moveFwd = false, targetQuat = new THREE.Quaternion();
 
-const shootSound = document.getElementById('shoot-audio');
+// NEW: Web Audio API for Mobile
+let audioCtx = null;
+let shootBuffer = null;
+
 const startBtn = document.getElementById('start-btn');
 const startOverlay = document.getElementById('start-overlay');
+const shootAudioElement = document.getElementById('shoot-audio');
 
 const MODEL_URL = 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/models/gltf/Soldier.glb';
 const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-// --- 2. Timer Logic ---
+// --- 2. NEW: Mobile Audio Force-Loader ---
+async function setupMobileAudio() {
+    if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    // Agar sound file load nahi hui toh load karein
+    if (!shootBuffer && shootAudioElement) {
+        try {
+            const response = await fetch(shootAudioElement.src);
+            const arrayBuffer = await response.arrayBuffer();
+            shootBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+        } catch (e) {
+            console.error("Audio loading failed", e);
+        }
+    }
+    if (audioCtx.state === 'suspended') {
+        await audioCtx.resume();
+    }
+}
+
+function playShootSound() {
+    if (audioCtx && shootBuffer) {
+        const source = audioCtx.createBufferSource();
+        source.buffer = shootBuffer;
+        source.connect(audioCtx.destination);
+        source.start(0);
+    }
+}
+
+// --- 3. Timer Logic ---
 function startTimer() {
     const timerEl = document.getElementById('timer');
     const gameTimer = setInterval(() => {
@@ -23,7 +56,7 @@ function startTimer() {
     }, 1000);
 }
 
-// --- 3. Init Game ---
+// --- 4. Init Game ---
 function initGame() {
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x050505);
@@ -46,19 +79,15 @@ function initGame() {
             const enemy = gltf.scene;
             enemy.scale.set(1.8, 1.8, 1.8);
             enemy.position.set((Math.random() - 0.5) * 40, 0, -(Math.random() * 30 + 10));
-            
             enemy.traverse(child => {
                 if (child.isMesh) {
                     child.material = child.material.clone();
                     child.material.color.set(0xff0000); 
                 }
             });
-
             scene.add(enemy);
             const mixer = new THREE.AnimationMixer(enemy);
-            if (gltf.animations.length > 0) {
-                mixer.clipAction(gltf.animations[0]).play();
-            }
+            if (gltf.animations.length > 0) mixer.clipAction(gltf.animations[0]).play();
             enemies.push({ mesh: enemy, alive: true, mixer: mixer });
         });
     }
@@ -69,9 +98,7 @@ function initGame() {
         player.scale.set(1.8, 1.8, 1.8);
         scene.add(player);
         playerMixer = new THREE.AnimationMixer(player);
-        if (gltf.animations.length > 1) {
-            playerMixer.clipAction(gltf.animations[1]).play(); 
-        }
+        if (gltf.animations.length > 1) playerMixer.clipAction(gltf.animations[1]).play(); 
     });
 
     setupControls();
@@ -79,48 +106,38 @@ function initGame() {
     renderer.setAnimationLoop(animate);
 }
 
-// --- 4. Animation Loop ---
+// --- 5. Animation Loop ---
 function animate() {
     const dt = clock.getDelta();
-    
     if (player) {
-        player.quaternion.slerp(targetQuat, 0.2); // Smoother Gyro
+        player.quaternion.slerp(targetQuat, 0.2); 
         if (playerMixer) playerMixer.update(dt);
         if (moveFwd) {
             const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(player.quaternion);
-            player.position.add(dir.multiplyScalar(0.15));
+            player.position.add(dir.multiplyScalar(0.18)); 
             player.position.y = 0;
         }
         const camPos = new THREE.Vector3(0, 4.5, 9).applyQuaternion(player.quaternion);
         camera.position.lerp(player.position.clone().add(camPos), 0.1);
         camera.lookAt(player.position.x, player.position.y + 2, player.position.z - 5);
     }
-
-    for (let i = 0; i < enemies.length; i++) {
-        if (enemies[i].alive && enemies[i].mixer) {
-            enemies[i].mixer.update(dt);
-        }
-    }
-
+    enemies.forEach(e => { if (e.alive && e.mixer) e.mixer.update(dt); });
     renderer.render(scene, camera);
 }
 
-// --- 5. Controls & Shoot ---
+// --- 6. Controls & Shoot ---
 function setupControls() {
     if (isMobile) {
         window.addEventListener('deviceorientation', (e) => {
             if (isGameOver || !player) return;
             let angle = (window.innerWidth > window.innerHeight) ? e.beta : e.gamma;
-            let rotationY = -THREE.MathUtils.degToRad(angle * 2.8); 
+            let rotationY = -THREE.MathUtils.degToRad(angle * 3.5); // Faster Gyro
             targetQuat.setFromEuler(new THREE.Euler(0, rotationY, 0, 'YXZ'));
         });
 
         document.getElementById('fire-btn').addEventListener('touchstart', (e) => {
             e.preventDefault();
-            // Audio Force Wakeup
-            if (shootSound.paused) {
-                shootSound.play().then(() => { shootSound.pause(); }).catch(err => {});
-            }
+            if (audioCtx) audioCtx.resume(); // Ensure context stays awake
             shoot();
         });
 
@@ -142,15 +159,8 @@ function setupControls() {
 function shoot() {
     if (!player || isGameOver || ammo <= 0) return;
     
-    // Mobile Sound Trigger Fix
-    if (shootSound) {
-        shootSound.currentTime = 0;
-        shootSound.muted = false; // Just in case
-        let playPromise = shootSound.play();
-        if (playPromise !== undefined) {
-            playPromise.catch(error => { console.log("Audio playback failed"); });
-        }
-    }
+    // NEW: Play sound via Buffer
+    playShootSound();
 
     ammo--;
     document.getElementById('ammo').innerText = ammo;
@@ -159,9 +169,7 @@ function shoot() {
     const shootDir = new THREE.Vector3(0, 0, -1).applyQuaternion(player.quaternion);
     raycaster.set(player.position.clone().add(new THREE.Vector3(0, 1.5, 0)), shootDir);
 
-    const targetMeshes = enemies.filter(e => e.alive).map(e => e.mesh);
-    const hits = raycaster.intersectObjects(targetMeshes, true);
-
+    const hits = raycaster.intersectObjects(enemies.filter(e => e.alive).map(e => e.mesh), true);
     if (hits.length > 0) {
         let hitObject = hits[0].object;
         let enemyRoot = enemies.find(e => {
@@ -186,24 +194,18 @@ function finishGame(win) {
     document.getElementById('result-title').innerText = win ? "MISSION SUCCESS" : "MISSION FAILED";
 }
 
-// --- 6. Start Button (The Ultimate Audio Unlock) ---
+// --- 7. Start Action ---
 if (startBtn) {
-    startBtn.onclick = () => {
-        startOverlay.style.display = 'none';
-        
-        // Fullscreen Logic
+    startBtn.onclick = async () => {
+        // Full screen
         const el = document.documentElement;
         if (el.requestFullscreen) el.requestFullscreen();
         else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
 
-        // THIS IS THE KEY: Unlock audio context on first click
-        if (shootSound) {
-            shootSound.play().then(() => {
-                shootSound.pause();
-                shootSound.currentTime = 0;
-            }).catch(e => { console.log("Sound unlock error:", e); });
-        }
+        // Mobile Sound "Force Unlock"
+        await setupMobileAudio();
         
+        startOverlay.style.display = 'none';
         initGame();
     };
 }
