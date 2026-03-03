@@ -2,7 +2,6 @@
 let scene, camera, renderer, clock, player, playerMixer;
 let enemies = [], isGameOver = false, score = 0, ammo = 100, timeLeft = 60;
 let moveFwd = false, targetQuat = new THREE.Quaternion();
-let gameTimerInterval;
 
 const shootSound = document.getElementById('shoot-audio');
 const startBtn = document.getElementById('start-btn');
@@ -14,21 +13,13 @@ const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 // --- 2. Timer Logic ---
 function startTimer() {
     const timerEl = document.getElementById('timer');
-    if(gameTimerInterval) clearInterval(gameTimerInterval);
-
-    gameTimerInterval = setInterval(() => {
-        if (isGameOver) { clearInterval(gameTimerInterval); return; }
-        
+    const gameTimer = setInterval(() => {
+        if (isGameOver) { clearInterval(gameTimer); return; }
         timeLeft--;
         let mins = Math.floor(timeLeft / 60);
         let secs = timeLeft % 60;
-        
         if (timerEl) timerEl.innerText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-        
-        if (timeLeft <= 0) { 
-            clearInterval(gameTimerInterval); 
-            finishGame(false); 
-        }
+        if (timeLeft <= 0) { clearInterval(gameTimer); finishGame(false); }
     }, 1000);
 }
 
@@ -67,15 +58,11 @@ function initGame() {
             
             const mixer = new THREE.AnimationMixer(enemy);
             if (gltf.animations.length > 0) {
-                mixer.clipAction(gltf.animations[0]).play();
+                const action = mixer.clipAction(gltf.animations[0]);
+                action.play();
             }
             
-            enemies.push({ 
-                mesh: enemy, 
-                alive: true, 
-                mixer: mixer, 
-                offset: Math.random() * Math.PI * 2 
-            });
+            enemies.push({ mesh: enemy, alive: true, mixer: mixer });
         });
     }
 
@@ -98,27 +85,23 @@ function initGame() {
 // --- 4. Animation Loop ---
 function animate() {
     const dt = clock.getDelta();
-    const time = clock.getElapsedTime();
     
-    if (player && !isGameOver) {
+    if (player) {
         player.quaternion.slerp(targetQuat, 0.1);
         if (playerMixer) playerMixer.update(dt);
-        
         if (moveFwd) {
             const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(player.quaternion);
             player.position.add(dir.multiplyScalar(0.15));
             player.position.y = 0;
         }
-        
         const camPos = new THREE.Vector3(0, 4.5, 9).applyQuaternion(player.quaternion);
         camera.position.lerp(player.position.clone().add(camPos), 0.1);
         camera.lookAt(player.position.x, player.position.y + 2, player.position.z - 5);
     }
 
     for (let i = 0; i < enemies.length; i++) {
-        if (enemies[i].alive) {
-            if (enemies[i].mixer) enemies[i].mixer.update(dt);
-            enemies[i].mesh.position.y = Math.sin(time * 2 + enemies[i].offset) * 0.25;
+        if (enemies[i].alive && enemies[i].mixer) {
+            enemies[i].mixer.update(dt);
         }
     }
 
@@ -131,7 +114,7 @@ function setupControls() {
         window.addEventListener('deviceorientation', (e) => {
             if (isGameOver) return;
             let rotY = (window.innerWidth > window.innerHeight) ? e.beta : e.gamma;
-            let rotationY = -(rotY) * (Math.PI / 180) * 2.5;
+            let rotationY = -(rotY) * (Math.PI / 180) * 2;
             targetQuat.setFromEuler(new THREE.Euler(0, rotationY, 0, 'YXZ'));
         });
 
@@ -150,31 +133,27 @@ function setupControls() {
             targetQuat.setFromEuler(new THREE.Euler(0, rotY, 0, 'YXZ'));
         });
         window.addEventListener('mousedown', shoot);
-        window.addEventListener('keydown', (e) => { if(e.code === 'ArrowUp') moveFwd = true; });
-        window.addEventListener('keyup', (e) => { if(e.code === 'ArrowUp') moveFwd = false; });
+        
+        window.addEventListener('keydown', (e) => { 
+            if(e.code === 'ArrowUp') moveFwd = true; 
+        });
+        window.addEventListener('keyup', (e) => { 
+            if(e.code === 'ArrowUp') moveFwd = false; 
+        });
     }
 }
 
-// ✅ UPDATED SHOOT FUNCTION (Mobile Sound Fixed)
 function shoot() {
     if (!player || isGameOver || ammo <= 0) return;
 
+    // --- Play sound and unlock audio on mobile ---
     if (shootSound) {
-        shootSound.pause();
-        shootSound.currentTime = 0;
-
         const playPromise = shootSound.play();
         if (playPromise !== undefined) {
-            playPromise.catch(() => {
-                document.addEventListener('touchstart', function unlockAudio() {
-                    shootSound.play();
-                    document.removeEventListener('touchstart', unlockAudio);
-                });
-            });
+            playPromise.catch(() => {}); // ignore if blocked
         }
+        shootSound.currentTime = 0; // reset for rapid shooting
     }
-    
-    if (isMobile && navigator.vibrate) navigator.vibrate(40);
 
     ammo--;
     document.getElementById('ammo').innerText = ammo;
@@ -207,26 +186,30 @@ function shoot() {
 
 function finishGame(win) {
     isGameOver = true;
-    clearInterval(gameTimerInterval);
     document.getElementById('game-over-screen').style.display = 'flex';
     document.getElementById('result-title').innerText = win ? "MISSION SUCCESS" : "MISSION FAILED";
 }
 
-// --- 6. Start Button ---
+// --- 6. Start Button (Full Screen + Audio Unlock) ---
 if (startBtn) {
     startBtn.onclick = () => {
         startOverlay.style.display = 'none';
         
+        // --- Full Screen ---
         const el = document.documentElement;
         if (el.requestFullscreen) el.requestFullscreen();
         else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+        else if (el.msRequestFullscreen) el.msRequestFullscreen();
 
-        // 🔓 Stronger Mobile Audio Unlock
+        // --- Unlock Audio for Mobile ---
         if (shootSound) {
-            shootSound.play().then(() => {
-                shootSound.pause();
-                shootSound.currentTime = 0;
-            }).catch(() => {});
+            const playPromise = shootSound.play();
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    shootSound.pause();
+                    shootSound.currentTime = 0;
+                }).catch(() => {});
+            }
         }
 
         initGame();
