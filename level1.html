@@ -12,7 +12,7 @@
 
     <div id="ui-container">
         <div class="header-box">
-            <h1 class="glitch-text">THE RED ROOM</h1>
+            <h1 class="glitch-text">TRAINING GROUND</h1>
             <p class="mission-tag">PHASE 01: ELIMINATION</p>
         </div>
         
@@ -35,6 +35,15 @@
 
     <a href="games.html" class="exit-btn-top">EXIT</a>
 
+    <!-- <div id="game-over-screen" style="display: none;">
+        <div class="result-card">
+            <h1 id="result-title">MISSION ENDED</h1>
+            <p id="result-reason" style="color: #888;">SECTOR STATUS UPDATED</p>
+            <div class="result-stats">
+                <p>KILLS: <span id="final-kills">0</span>/15</p>
+                <p>TIME: <span id="final-time">0:00</span></p>
+            </div> -->
+
     <div id="game-over-screen" style="display: none;">
         <div class="result-card">
             <h1 id="result-title">MISSION ENDED</h1>
@@ -46,10 +55,10 @@
     </div>
 
     <div id="start-overlay" style="position: fixed; inset: 0; background: #000; z-index: 1000; display: flex; align-items: center; justify-content: center;">
-        <button id="start-btn" style="padding: 15px 40px; background: #f00; color: #fff; border: none; font-weight: bold; font-size: 1.2rem; cursor: pointer;">INITIALIZE SYSTEM</button>
+        <button id="start-btn" style="padding: 15px 40px; background: #f00; color: #fff; border: none; font-weight: bold; font-size: 1.2rem; cursor: pointer;">INITIALIZE PHASE 1</button>
     </div>
 
-    <audio id="shoot-audio" src="c:\Users\Administrator\Downloads\u_62htdrvg4y-gun-shot-359196.mp3" preload="auto"></audio>
+    <audio id="shoot-audio" src="audios/u_62htdrvg4y-gun-shot-359196.mp3" preload="auto"></audio>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>

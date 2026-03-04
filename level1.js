@@ -216,3 +216,17 @@ if (startBtn) {
         initGame();
     };
 }
+
+
+
+
+function finishGame(win) {
+    isGameOver = true;
+    const resultTitle = document.getElementById('result-title');
+    
+    document.getElementById('game-over-screen').style.display = 'flex';
+    
+    // Dono suraton mein color White hi rahega
+    resultTitle.innerText = win ? "MISSION SUCCESS" : "MISSION FAILED";
+    resultTitle.style.color = "#ffffff"; 
+}

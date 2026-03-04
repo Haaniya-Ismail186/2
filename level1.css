@@ -278,3 +278,21 @@ canvas {
         padding: 15px 40px;
     }
 }
+
+
+
+/* Result Screen Title ko White karne ke liye */
+#result-title {
+    font-size: clamp(1.8rem, 8vw, 2.5rem);
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    font-weight: 900;
+    color: #fff; /* Pehle ye #f00 (Red) tha, ab White kar diya */
+    text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+}
+
+/* Agar aap chahti hain ke Success hone par bhi White hi rahay */
+.mission-success-text {
+    color: #fff !important;
+}
