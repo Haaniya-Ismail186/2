@@ -1,6 +1,7 @@
 // --- 1. Global Variables ---
 let scene, camera, renderer, clock, player, playerMixer;
-let enemies = [], isGameOver = false, score = 0, ammo = 100, timeLeft = 60;
+// Yahan score check ke liye 15 targets set hain
+let enemies = [], isGameOver = false, score = 0, ammo = 100, timeLeft = 120;
 let moveFwd = false, targetQuat = new THREE.Quaternion();
 
 const shootSound = document.getElementById('shoot-audio');
@@ -51,8 +52,8 @@ function initGame() {
 
     const loader = new THREE.GLTFLoader();
 
-    // Load Enemies
-    for (let i = 0; i < 10; i++) {
+    // --- UPDATED: Load 15 Enemies ---
+    for (let i = 0; i < 15; i++) {
         loader.load(MODEL_URL, (gltf) => {
             const enemy = gltf.scene;
             enemy.scale.set(1.8, 1.8, 1.8);
@@ -131,7 +132,7 @@ function setupControls() {
 
         document.getElementById('fire-btn').addEventListener('touchstart', (e) => {
             e.preventDefault();
-            unlockAudio(); // unlock first touch
+            unlockAudio(); 
             shoot();
         });
 
@@ -161,7 +162,6 @@ function setupControls() {
 function shoot() {
     if (!player || isGameOver || ammo <= 0) return;
 
-    // --- Play sound ---
     if (shootSound) {
         shootSound.currentTime = 0;
         shootSound.play().catch(() => {});
@@ -190,24 +190,30 @@ function shoot() {
             enemyRoot.alive = false;
             scene.remove(enemyRoot.mesh);
             score++;
-            document.getElementById('enemy-count').innerText = 10 - score;
-            if (score >= 10) finishGame(true);
+            // --- UPDATED: Display 15 targets remaining ---
+            document.getElementById('enemy-count').innerText = 15 - score;
+            if (score >= 15) finishGame(true);
         }
     }
 }
 
+// --- 6. Finish Game (White Color Text) ---
 function finishGame(win) {
     isGameOver = true;
+    const resultTitle = document.getElementById('result-title');
+    
     document.getElementById('game-over-screen').style.display = 'flex';
-    document.getElementById('result-title').innerText = win ? "MISSION SUCCESS" : "MISSION FAILED";
+    
+    // Result text logic
+    resultTitle.innerText = win ? "MISSION SUCCESS" : "MISSION FAILED";
+    resultTitle.style.color = "#ffffff"; 
 }
 
-// --- 6. Start Button (Full Screen) ---
+// --- 7. Start Button (Full Screen) ---
 if (startBtn) {
     startBtn.onclick = () => {
         startOverlay.style.display = 'none';
         
-        // --- Full Screen ---
         const el = document.documentElement;
         if (el.requestFullscreen) el.requestFullscreen();
         else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
@@ -215,18 +221,4 @@ if (startBtn) {
 
         initGame();
     };
-}
-
-
-
-
-function finishGame(win) {
-    isGameOver = true;
-    const resultTitle = document.getElementById('result-title');
-    
-    document.getElementById('game-over-screen').style.display = 'flex';
-    
-    // Dono suraton mein color White hi rahega
-    resultTitle.innerText = win ? "MISSION SUCCESS" : "MISSION FAILED";
-    resultTitle.style.color = "#ffffff"; 
 }

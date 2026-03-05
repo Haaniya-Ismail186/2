@@ -1,47 +1,223 @@
-body { margin: 0; overflow: hidden; background: #000; font-family: 'Courier New', Courier, monospace; }
+/* --- Global Reset --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: none; 
+}
 
-/* Exact Top-Left UI as requested */
+body {
+    background-color: #000;
+    overflow: hidden;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    width: 100vw;
+    height: 100vh;
+}
+
+/* --- Responsive UI Container --- */
 #ui-container {
     position: fixed;
-    top: 20px;
-    left: 20px;
-    color: #ff0000;
-    font-weight: bold;
+    top: clamp(10px, 4vh, 30px);
+    left: clamp(10px, 4vw, 30px);
     z-index: 100;
     pointer-events: none;
-    border-left: 4px solid #ff0000;
-    padding-left: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(5px, 2vh, 12px);
 }
 
-#ui-container p { margin: 5px 0; font-size: 20px; }
+.header-box {
+    border-left: 4px solid #f00; /* Level 1 Red Accent */
+    padding-left: clamp(8px, 2vw, 12px);
+}
 
-/* Buttons same as Level 1-3 */
-#controls {
+.glitch-text {
+    color: #fff;
+    font-size: clamp(1.2rem, 5vw, 1.6rem);
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.mission-tag {
+    color: #f00;
+    font-size: clamp(0.6rem, 2vw, 0.75rem);
+    letter-spacing: 1px;
+    font-weight: bold;
+}
+
+/* Stats Styling (Polygon Style - Responsive) */
+.stats-panel {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(4px, 1vh, 8px);
+}
+
+.stat {
+    background: rgba(255, 0, 0, 0.1);
+    border: 1px solid rgba(255, 0, 0, 0.3);
+    color: #aaa;
+    padding: clamp(6px, 1.5vh, 10px) clamp(10px, 3vw, 15px);
+    font-size: clamp(0.7rem, 2.5vw, 0.8rem);
+    width: clamp(140px, 35vw, 175px);
+    display: flex;
+    justify-content: space-between;
+    backdrop-filter: blur(5px);
+    clip-path: polygon(0% 0%, 100% 0%, 90% 100%, 0% 100%);
+}
+
+.stat span {
+    color: #fff;
+    font-weight: bold;
+}
+
+/* --- Mobile Controls (Bottom Anchored) --- */
+#mobile-controls {
     position: fixed;
-    bottom: 30px;
+    bottom: clamp(20px, 10vh, 60px);
     width: 100%;
     display: flex;
-    justify-content: space-around;
-    z-index: 100;
+    justify-content: space-between;
+    padding: 0 10%;
+    z-index: 500;
+    pointer-events: none;
 }
 
-#move-btn, #fire-btn {
-    width: 90px; height: 90px;
+.touch-btn {
+    width: clamp(75px, 20vw, 95px);
+    height: clamp(75px, 20vw, 95px);
+    background: rgba(255, 0, 0, 0.1);
+    border: 3.5px solid #f00;
     border-radius: 50%;
-    border: 3px solid #ff0000;
-    background: rgba(0,0,0,0.5);
-    color: #ff0000;
+    color: #fff;
     font-weight: bold;
-    cursor: pointer;
+    font-size: clamp(0.75rem, 3.5vw, 0.9rem);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto;
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
+    transition: transform 0.1s;
 }
 
-#fire-btn { border-color: #fff; color: #fff; }
+.touch-btn:active {
+    background: #f00;
+    color: #000;
+    transform: scale(0.85);
+}
 
+/* --- Crosshair --- */
+#crosshair-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 50;
+    pointer-events: none;
+}
+
+#crosshair {
+    width: clamp(18px, 4vw, 24px);
+    height: clamp(18px, 4vw, 24px);
+    border: 2px solid rgba(255, 0, 0, 0.7);
+    border-radius: 50%;
+}
+
+/* --- Result Screen (Responsive Card) --- */
 #game-over-screen {
     position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.9);
-    color: #ff0000;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    z-index: 1000;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.9);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    padding: 20px;
+}
+
+.result-card {
+    text-align: center;
+    padding: clamp(25px, 5vh, 40px);
+    border: 2px solid #f00;
+    background: #050505;
+    border-radius: 15px;
+    width: 100%;
+    max-width: 400px;
+}
+
+#result-title {
+    font-size: clamp(1.8rem, 8vw, 2.5rem);
+    color: #fff;
+    margin-bottom: 20px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.result-stats {
+    color: #fff;
+    margin-bottom: 25px;
+    font-size: clamp(1rem, 4vw, 1.1rem);
+}
+
+.button-group {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.card-btn {
+    flex: 1;
+    padding: 12px 0;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    text-transform: uppercase;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 0.85rem;
+}
+
+.primary { background: #f00; color: #fff; }
+.secondary { background: #333; color: #fff; }
+
+/* --- Top Exit Button --- */
+.exit-btn-top {
+    position: fixed;
+    top: clamp(10px, 3vh, 25px);
+    right: clamp(10px, 3vw, 25px);
+    z-index: 500;
+    color: #fff;
+    text-decoration: none;
+    border: 1px solid #f00;
+    padding: 6px 15px;
+    font-size: clamp(0.65rem, 2vw, 0.75rem);
+    background: rgba(0,0,0,0.6);
+}
+
+/* --- Landscape Fix for Mobile --- */
+@media (max-height: 450px) {
+    #ui-container { top: 5px; left: 15px; }
+    .stats-panel { flex-direction: row; gap: 10px; width: 100vw; }
+    .stat { width: 110px; padding: 4px 10px; font-size: 0.65rem; }
+    #mobile-controls { bottom: 15px; }
+    .touch-btn { width: 60px; height: 60px; }
+}
+
+
+/* Result Screen Title ko White karne ke liye */
+#result-title {
+    font-size: clamp(1.8rem, 8vw, 2.5rem);
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    font-weight: 900;
+    color: #fff; /* Pehle ye #f00 (Red) tha, ab White kar diya */
+    text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+}
+
+/* Agar aap chahti hain ke Success hone par bhi White hi rahay */
+.mission-success-text {
+    color: #fff !important;
 }

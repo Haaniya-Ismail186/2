@@ -17,9 +17,9 @@
         </div>
         
         <div class="stats-panel">
-            <div class="stat">TIME: <span id="timer">1:00</span></div>
+            <div class="stat">TIME: <span id="timer">02:00</span></div>
             <div class="stat">HEALTH: <span id="health">100</span>%</div>
-            <div class="stat">ENEMIES: <span id="enemy-count">10</span></div>
+            <div class="stat">ENEMIES: <span id="enemy-count">15</span></div>
             <div class="stat">AMMO: <span id="ammo">100</span></div>
         </div>
     </div>
@@ -35,18 +35,15 @@
 
     <a href="games.html" class="exit-btn-top">EXIT</a>
 
-    <!-- <div id="game-over-screen" style="display: none;">
-        <div class="result-card">
-            <h1 id="result-title">MISSION ENDED</h1>
-            <p id="result-reason" style="color: #888;">SECTOR STATUS UPDATED</p>
-            <div class="result-stats">
-                <p>KILLS: <span id="final-kills">0</span>/15</p>
-                <p>TIME: <span id="final-time">0:00</span></p>
-            </div> -->
 
     <div id="game-over-screen" style="display: none;">
         <div class="result-card">
             <h1 id="result-title">MISSION ENDED</h1>
+            <div class="result-stats">
+                <p>KILLS: <span id="final-kills">0</span>/15</p>
+                <p>TIME: <span id="final-time">0:00</span></p>
+            </div>
+            <br>
             <div class="button-group">
                 <button onclick="location.reload()" class="card-btn primary">RETRY</button>
                 <a href="games.html" class="card-btn secondary">MENU</a>

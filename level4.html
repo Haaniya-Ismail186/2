@@ -2,30 +2,60 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Level 4: The Loot City</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>The Loot City | Level 4</title>
+    <link rel="stylesheet" href="level4style.css">
 </head>
 <body>
 
+    <div id="damage-overlay"></div>
+
     <div id="ui-container">
-        <div class="ui-left">
-            <p>TIME: <span id="timer">8:00</span></p>
-            <p>HEALTH: <span id="health">100%</span></p>
-            <p>ENEMIES: <span id="enemy-count">12</span></p>
-            <p>AMMO: <span id="ammo">300</span></p>
+        <div class="header-box">
+            <h1 class="glitch-text">THE LOOT CITY</h1>
+            <p class="mission-tag">PHASE 04: URBAN PURSUIT</p>
+        </div>
+        
+        <div class="stats-panel">
+            <div class="stat">TIME: <span id="timer">10:00</span></div>
+            <div class="stat">HEALTH: <span id="health">100</span>%</div>
+            <div class="stat">ENEMIES: <span id="enemy-count">50</span></div>
+            <div class="stat">AMMO: <span id="ammo">300</span></div>
         </div>
     </div>
 
-    <div id="controls">
-        <button id="move-btn">MOVE</button>
-        <button id="fire-btn">FIRE</button>
+    <div id="crosshair-container">
+        <div id="crosshair"></div>
     </div>
 
-    <div id="game-over-screen" style="display: none;">
-        <h1 id="result-title">MISSION SUCCESS</h1>
-        <button onclick="location.reload()">RESTART</button>
+    <div id="mobile-controls">
+        <div id="move-btn" class="touch-btn">RUN</div>
+        <div id="fire-btn" class="touch-btn">FIRE</div>
     </div>
+
+    <a href="index.html" class="exit-btn-top">EXIT</a>
+
+    <div id="game-over-screen" style="display: none;">
+        <div class="result-card">
+            <h1 id="result-title">MISSION ENDED</h1>
+            <div class="result-stats">
+                <p>KILLS: <span id="final-kills">0</span>/50</p>
+                <p>TIME: <span id="final-time">0:00</span></p>
+            </div>
+            <div class="button-group">
+                <button onclick="location.reload()" class="card-btn primary">RETRY</button>
+                <a href="games.html" class="card-btn secondary">MENU</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="start-overlay" style="position: fixed; inset: 0; background: #000; z-index: 1000; display: flex; align-items: center; justify-content: center;">
+        <button id="start-btn" style="padding: 15px 40px; background: #f00; color: #fff; border: none; font-weight: bold; font-size: 1.2rem; cursor: pointer; text-transform: uppercase;">
+            INITIALIZE PHASE 4
+        </button>
+    </div>
+
+    <audio id="shoot-audio" src="audios/u_62htdrvg4y-gun-shot-359196.mp3" preload="auto"></audio>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>

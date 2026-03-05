@@ -91,35 +91,43 @@
 
     const container = document.getElementById('gameLevels');
 
-    // Check karein ke Level 4 unlock hai ya nahi
+    // LocalStorage se status check karein
     const isLevel4Unlocked = localStorage.getItem('level4Unlocked') === 'true';
 
-    for(let i=0; i < levelNames.length; i++) {
-        let isLocked = '';
+    container.innerHTML = ''; // Container clear karein pehle
 
-        // Level 1, 2, 3 default unlock hain (i < 3)
-        // Level 4 (index 3) tab unlock hoga jab localStorage true ho
+    for(let i=0; i < levelNames.length; i++) {
+        let isLocked = false;
+
+        // --- Logic: Kaunsa Level Locked Hoga? ---
+        // Level 1 (i=0), 2 (i=1), 3 (i=2) hamesha khulay rahenge
         if (i > 2) {
+            // Agar ye Level 4 hai (index 3) aur localStorage false hai, toh lock kardo
             if (i === 3 && isLevel4Unlocked) {
-                isLocked = ''; // Unlock Level 4
+                isLocked = false; 
             } else {
-                isLocked = 'locked'; // Keep others locked
+                isLocked = true; 
             }
         }
 
-        let lockIcon = isLocked ? '<div class="lock-icon">🔒</div>' : '';
-        let levelLink = isLocked ? '#' : `level${i+1}.html`;
-        let btnText = (i === 3 && isLevel4Unlocked) ? "UNLOCKED" : levelNames[i];
+        // --- UI Setup ---
+        let lockClass = isLocked ? 'locked' : '';
+        let lockIcon = isLocked ? '<div class="lock-icon" style="font-size: 20px;">🔒</div>' : '';
+        let levelLink = isLocked ? 'javascript:void(0)' : `level${i+1}.html`;
+        
+        // Button text: Agar locked hai toh level ka naam dikhao, warna level ka naam ya "PLAY"
+        let btnText = levelNames[i];
 
         container.innerHTML += `
             <div class="col-6 col-md-4 col-lg-2">
-                <div class="level-card ${isLocked} text-center" 
+                <div class="level-card ${lockClass} text-center" 
                      id="level-btn-${i+1}"
-                     onclick="if('${isLocked}'==''){ window.location.href='${levelLink}' }">
+                     style="cursor: ${isLocked ? 'not-allowed' : 'pointer'}; opacity: ${isLocked ? '0.6' : '1'};"
+                     onclick="if(!${isLocked}){ window.location.href='${levelLink}' }">
                     ${lockIcon}
                     <h2 class="text-danger">${i+1}</h2>
                     <p class="small fw-bold text-white">${btnText}</p>
-                    <div class="stars text-warning">★★★</div>
+                    <div class="stars text-warning">${isLocked ? '☆☆☆' : '★★★'}</div>
                 </div>
             </div>
         `;

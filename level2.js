@@ -1,6 +1,6 @@
-// --- 1. Global Variables (Exact same as Level 1) ---
+// --- 1. Global Variables ---
 let scene, camera, renderer, clock, player, playerMixer;
-let enemies = [], isGameOver = false, score = 0, ammo = 120, timeLeft = 90; 
+let enemies = [], isGameOver = false, score = 0, ammo = 120, timeLeft = 240; 
 let moveFwd = false, targetQuat = new THREE.Quaternion();
 
 const shootSound = document.getElementById('shoot-audio');
@@ -10,7 +10,7 @@ const startOverlay = document.getElementById('start-overlay');
 const MODEL_URL = 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/models/gltf/Soldier.glb';
 const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-// --- Audio Unlock (Exact same as Level 1) ---
+// --- Audio Unlock ---
 let audioUnlocked = false;
 function unlockAudio() {
     if (audioUnlocked || !shootSound) return;
@@ -38,7 +38,7 @@ function startTimer() {
 function initGame() {
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x050505);
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
     
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(window.devicePixelRatio);
@@ -48,19 +48,23 @@ function initGame() {
     clock = new THREE.Clock();
     scene.add(new THREE.AmbientLight(0xffffff, 1.2));
     
-    // SAFE ZONE Visual: Grid color changed to Red to show danger boundary
-    scene.add(new THREE.GridHelper(100, 20, 0xff0000, 0x111111));
+    // --- GROUND & GRID ---
+    const gridSize = 1000; 
+    const divisions = 100; 
+    const grid = new THREE.GridHelper(gridSize, divisions, 0xff0000, 0x222222);
+    scene.add(grid);
 
     const loader = new THREE.GLTFLoader();
 
-    // Spawn 15 Enemies for Level 2
-    for (let i = 0; i < 15; i++) {
+    // --- UPDATED: Spawn 25 Enemies ---
+    for (let i = 0; i < 25; i++) {
         loader.load(MODEL_URL, (gltf) => {
             const enemy = gltf.scene;
             enemy.scale.set(1.8, 1.8, 1.8);
             
-            // Enemies spawned further away
-            enemy.position.set((Math.random() - 0.5) * 70, 0, -(Math.random() * 50 + 20));
+            let x = (Math.random() - 0.5) * 30; 
+            let z = -(Math.random() * 20 + 40); 
+            enemy.position.set(x, 0, z);
             
             enemy.traverse(child => {
                 if (child.isMesh) {
@@ -73,11 +77,11 @@ function initGame() {
             const mixer = new THREE.AnimationMixer(enemy);
             if (gltf.animations.length > 0) mixer.clipAction(gltf.animations[0]).play();
             
-            // Level 2 Change: Enemies slowly rotate towards player
-            enemies.push({ mesh: enemy, alive: true, mixer: mixer });
+            enemies.push({ mesh: enemy, alive: true, mixer: mixer, speed: 0 });
         });
     }
 
+    // Load Player
     loader.load(MODEL_URL, (gltf) => {
         player = gltf.scene;
         player.scale.set(1.8, 1.8, 1.8);
@@ -100,14 +104,12 @@ function animate() {
         
         if (moveFwd) {
             const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(player.quaternion);
-            player.position.add(dir.multiplyScalar(0.18)); // Slightly faster for Level 2
+            player.position.add(dir.multiplyScalar(0.22)); 
             player.position.y = 0;
         }
         
-        // --- SAFE ZONE MECHANIC ---
-        // Agar player map (50 units) se bahar jaye toh wapas dhakail do
-        if (Math.abs(player.position.x) > 50 || Math.abs(player.position.z) > 50) {
-             player.position.set(0, 0, 0); // Reset to center if they leave safe zone
+        if (Math.abs(player.position.x) > 480 || Math.abs(player.position.z) > 480) {
+             player.position.set(0, 0, 0); 
         }
 
         const camPos = new THREE.Vector3(0, 4.5, 9).applyQuaternion(player.quaternion);
@@ -116,13 +118,15 @@ function animate() {
     }
 
     for (let i = 0; i < enemies.length; i++) {
-        if (enemies[i].alive && enemies[i].mixer) enemies[i].mixer.update(dt);
+        if (enemies[i].alive && enemies[i].mixer) {
+            enemies[i].mixer.update(dt);
+        }
     }
 
     renderer.render(scene, camera);
 }
 
-// --- 5. Controls (Exact same as Level 1) ---
+// --- 5. Controls ---
 function setupControls() {
     if (isMobile) {
         window.addEventListener('deviceorientation', (e) => {
@@ -149,12 +153,12 @@ function setupControls() {
             unlockAudio();
             shoot();
         });
-        window.addEventListener('keydown', (e) => { if(e.code === 'ArrowUp') moveFwd = true; });
-        window.addEventListener('keyup', (e) => { if(e.code === 'ArrowUp') moveFwd = false; });
+        window.addEventListener('keydown', (e) => { if(e.code === 'ArrowUp' || e.code === 'KeyW') moveFwd = true; });
+        window.addEventListener('keyup', (e) => { if(e.code === 'ArrowUp' || e.code === 'KeyW') moveFwd = false; });
     }
 }
 
-// --- 6. Shoot Logic (Exact same as Level 1) ---
+// --- 6. Shoot Logic ---
 function shoot() {
     if (!player || isGameOver || ammo <= 0) return;
 
@@ -186,26 +190,43 @@ function shoot() {
             enemyRoot.alive = false;
             scene.remove(enemyRoot.mesh);
             score++;
-            document.getElementById('enemy-count').innerText = 15 - score;
-            if (score >= 15) finishGame(true);
+            // --- UPDATED: Display 25 targets logic ---
+            document.getElementById('enemy-count').innerText = 25 - score;
+            if (score >= 25) finishGame(true);
         }
     }
 }
 
+// --- 7. Finish Game ---
 function finishGame(win) {
     isGameOver = true;
-    document.getElementById('game-over-screen').style.display = 'flex';
-    document.getElementById('result-title').innerText = win ? "MISSION SUCCESS" : "MISSION FAILED";
+    const screen = document.getElementById('game-over-screen');
+    const resultTitle = document.getElementById('result-title');
+    
+    screen.style.display = 'flex';
+    resultTitle.innerText = win ? "MISSION SUCCESS" : "MISSION FAILED";
     resultTitle.style.color = "#ffffff"; 
 }
 
-// --- 7. Start Button ---
+// --- 8. Start Button & Full Screen ---
 if (startBtn) {
     startBtn.onclick = () => {
         startOverlay.style.display = 'none';
-        const el = document.documentElement;
-        if (el.requestFullscreen) el.requestFullscreen();
-        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+        const docElm = document.documentElement;
+        if (docElm.requestFullscreen) docElm.requestFullscreen();
+        else if (docElm.webkitRequestFullscreen) docElm.webkitRequestFullscreen();
+        else if (docElm.mozRequestFullScreen) docElm.mozRequestFullScreen();
         initGame();
+        if (isMobile && screen.orientation && screen.orientation.lock) {
+            screen.orientation.lock('landscape').catch(() => {});
+        }
     };
 }
+
+window.addEventListener('resize', () => {
+    if (camera && renderer) {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+});
