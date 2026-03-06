@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>The Mansion | Level 3</title>
-    <link rel="stylesheet" href="level3.css">
+    <title>The Loot City | Level 5</title>
+    <link rel="stylesheet" href="level4style.css">
 </head>
 <body>
 
@@ -12,15 +12,15 @@
 
     <div id="ui-container">
         <div class="header-box">
-            <h1 class="glitch-text">THE MANSION</h1>
-            <p class="mission-tag">PHASE 03: THE FINAL STAND</p>
+            <h1 class="glitch-text">THE LOOT CITY</h1>
+            <p class="mission-tag">PHASE 05: SNIPER PEAK</p>
         </div>
         
         <div class="stats-panel">
-            <div class="stat">TIME: <span id="timer">08:00</span></div>
+            <div class="stat">TIME: <span id="timer">5:00</span></div>
             <div class="stat">HEALTH: <span id="health">100</span>%</div>
-            <div class="stat">ENEMIES: <span id="enemy-count">40</span></div>
-            <div class="stat">AMMO: <span id="ammo">200</span></div>
+            <div class="stat">ENEMIES: <span id="enemy-count">80</span></div>
+            <div class="stat">AMMO: <span id="ammo">150</span></div>
         </div>
     </div>
 
@@ -33,16 +33,15 @@
         <div id="fire-btn" class="touch-btn">FIRE</div>
     </div>
 
-    <a href="games.html" class="exit-btn-top">EXIT</a>
+    <a href="index.html" class="exit-btn-top">EXIT</a>
 
     <div id="game-over-screen" style="display: none;">
         <div class="result-card">
-            <h1 id="result-title" style="color: #ffffff;">MISSION ENDED</h1>
-            <div class="result-stats" style="color: #ffffff;">
-                <p>KILLS: <span id="final-kills">0</span>/40</p>
+            <h1 id="result-title">MISSION ENDED</h1>
+            <div class="result-stats">
+                <p>KILLS: <span id="final-kills">0</span>/80</p>
                 <p>TIME: <span id="final-time">0:00</span></p>
             </div>
-            <br>
             <div class="button-group">
                 <button onclick="location.reload()" class="card-btn primary">RETRY</button>
                 <a href="games.html" class="card-btn secondary">MENU</a>
@@ -51,13 +50,15 @@
     </div>
 
     <div id="start-overlay" style="position: fixed; inset: 0; background: #000; z-index: 1000; display: flex; align-items: center; justify-content: center;">
-        <button id="start-btn" style="padding: 15px 40px; background: #f00; color: #fff; border: none; font-weight: bold; font-size: 1.2rem; cursor: pointer;">INITIALIZE PHASE 3</button>
+        <button id="start-btn" style="padding: 15px 40px; background: #f00; color: #fff; border: none; font-weight: bold; font-size: 1.2rem; cursor: pointer; text-transform: uppercase;">
+            INITIALIZE PHASE 5
+        </button>
     </div>
 
     <audio id="shoot-audio" src="audios/u_62htdrvg4y-gun-shot-359196.mp3" preload="auto"></audio>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-    <script src="level3.js"></script>
+    <script src="level5.js"></script>
 </body>
 </html>

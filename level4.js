@@ -225,3 +225,21 @@ if (startBtn) {
         initGame();
     };
 }
+
+// Level 4 JS ke startBtn.onclick mein ye add karein
+startBtn.onclick = () => {
+    startOverlay.style.display = 'none';
+    
+    const el = document.documentElement;
+    if (el.requestFullscreen) {
+        el.requestFullscreen().then(() => {
+            // Full screen hone ke baad canvas ko resize karein
+            setTimeout(() => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }, 500);
+        });
+    }
+    initGame();
+};
